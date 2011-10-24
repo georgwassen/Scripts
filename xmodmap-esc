@@ -1,0 +1,4 @@
+clear Lock
+keycode 0x42 = Escape
+remove mod1 = ISO_Level3_Shift
+remove mod5 = ISO_Level3_Shift
