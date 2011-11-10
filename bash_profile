@@ -22,6 +22,9 @@ export PATH=$PATH:~/bin:~/bin/dmd/bin:~/scripts
 set -o vi
 export EDITOR=vi
 
+export HISTCONTROL=ignorespace:ignoredups
+export HISTIGNORE='svn ci*:ls'
+
 ulimit -c 400000        # max core dump size
 ulimit -v 2097152       # limit max. virtual Memory per process
 
