@@ -33,9 +33,13 @@ alias vi='vim'
 alias vim='vim -p'
 alias gvim='gvim -p'
 
-alias ls="ls --color"
-alias ll="ls -l --color"
-alias la="ls -la --color"
+alias grep='grep -n --color=auto' 2>/dev/null
+alias egrep='egrep -n --color=auto' 2>/dev/null
+alias fgrep='fgrep -n --color=auto' 2>/dev/null
+
+alias ls="ls --color=auto"
+alias ll="ls -l --color=auto"
+alias la="ls -la --color=auto"
 
 alias cd..="cd .."
 alias cd...="cd ../.."
