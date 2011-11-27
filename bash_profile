@@ -72,7 +72,7 @@ else
 fi
 export PS1="\u@\h:\w$SCREEN\$ "
 
-if [ $(hostname --domain) == lfbs.rwth-aachen.de ]; then
+if [ "$(/bin/hostname --domain 2>/dev/null)" == lfbs.rwth-aachen.de ]; then
 
     if [ x`hostname` == xpoodoo ]; then
         export CDPATH=:~/checkout/BSPR/block1:~/checkout/BSPR/block2:~/checkout/BSPR/block3:~/checkout/BSPR/block4
