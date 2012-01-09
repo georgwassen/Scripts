@@ -65,7 +65,7 @@ function mkcd () {
 # grep output of ps (without grep itself)
 function psgrep ()
 {
-    ps aux | grep "$1" | grep -v 'grep'
+    ps aux | grep -v 'grep' | grep "$1" 
 }
 
 # get PIDs of 1st parameter and kill (SIGTERM) them
