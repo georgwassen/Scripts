@@ -68,6 +68,13 @@ function psgrep ()
     ps aux | grep -v 'grep' | grep "$1" 
 }
 
+unalias which
+which ()
+{
+    (alias; declare -f) | /usr/bin/which --tty-only --read-alias --read-functions --show-tilde --show-dot $@
+}
+export -f which
+
 # get PIDs of 1st parameter and kill (SIGTERM) them
 # TODO: where is the difference to killall?
 function psterm ()
@@ -135,6 +142,9 @@ if [ "$(/bin/hostname --domain 2>/dev/null)" == lfbs.rwth-aachen.de ]; then
     # this was included from autopackage... 
     # TODO: evaluate, if this is still needed. (it is installed in my LfBS account)
     [[ -f "/home/wassen/.config/autopackage/paths-bash" ]] && . "/home/wassen/.config/autopackage/paths-bash"
+
+    unset GNOME_KEYRING_CONTROL
+    unset GNOME_KEYRING_PID
 
 fi
 
