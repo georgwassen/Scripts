@@ -68,7 +68,9 @@ function psgrep ()
     ps aux | grep -v 'grep' | grep "$1" 
 }
 
-unalias which
+if alias which 2>/dev/null; then
+    unalias which
+fi
 which ()
 {
     (alias; declare -f) | /usr/bin/which --tty-only --read-alias --read-functions --show-tilde --show-dot $@
