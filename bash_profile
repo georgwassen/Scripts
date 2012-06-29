@@ -40,10 +40,12 @@ alias vi='vim'          # vi is always vim
 alias vim='vim -p'      # always use -p (open multiple files in tabs instead of same buffer)
 alias gvim='gvim -p'    # dito for gvim
 
-# grep: show lines and use color
-alias grep='grep -n --color=auto' 2>/dev/null
-alias egrep='egrep -n --color=auto' 2>/dev/null
-alias fgrep='fgrep -n --color=auto' 2>/dev/null
+# grep: use color
+## edit 16.6.2012: it's a bad idea to include -n (numbers) 
+##                 because that setting is not auto (matically deactivated when used in pipes) and that confuses scripts.
+alias grep='grep --color=auto' 2>/dev/null
+alias egrep='egrep --color=auto' 2>/dev/null
+alias fgrep='fgrep --color=auto' 2>/dev/null
 
 # ls and friends: use color
 alias ls="ls --color=auto"
@@ -103,7 +105,7 @@ export PS1="\u@\h:\w$SCREEN\$ "
 #
 # settings only for LfBS account (domain of hostname is lfbs)
 #
-if [ "$(/bin/hostname --domain 2>/dev/null)" == lfbs.rwth-aachen.de ]; then
+if [ "$(/bin/hostname | cut -d. -f2-)" == lfbs.rwth-aachen.de ]; then
 
     #
     # settings only for poodoo (my own desktop)
