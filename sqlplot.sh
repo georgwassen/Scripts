@@ -542,7 +542,14 @@ while true; do
     if read -e -p "sqlplot> " COMMAND PARAMS ; then
 	# input
 	#history -s "$COMMAND $PARAMS"
-	echo "$COMMAND $PARAMS" >> $HISTFILE
+        if [[ "$COMMAND" = select && "$PARAMS" = '' ]]; then
+            # empty 'select' repeats last select; but put the complete select statement into HISTFILE
+            #echo "(store lastselect '$LASTSELECT')"
+            echo "$LASTSELECT" >> $HISTFILE
+        else
+            #echo "(store command params '$COMMAND $PARAMS')"
+            echo "$COMMAND $PARAMS" >> $HISTFILE
+        fi
     else
         # EOF
 	if [ "$LOADING" != 1 ]; then
