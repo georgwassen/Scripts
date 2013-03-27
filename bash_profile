@@ -32,7 +32,7 @@ export HISTIGNORE='svn ci*:ls'
 
 # set limits
 ulimit -c 400000        # max core dump size
-ulimit -v 2097152       # limit max. virtual Memory per process
+#ulimit -v 2097152       # limit max. virtual Memory per process
 
 # aliases
 alias v='gvim'          # v is gvim (GUI)
@@ -70,7 +70,7 @@ function psgrep ()
     ps aux | grep -v 'grep' | grep "$1" 
 }
 
-if alias which 2>/dev/null; then
+if alias which >/dev/null 2>/dev/null; then
     unalias which
 fi
 which ()
@@ -147,8 +147,8 @@ if [ "$(/bin/hostname | cut -d. -f2-)" == lfbs.rwth-aachen.de ]; then
     # TODO: evaluate, if this is still needed. (it is installed in my LfBS account)
     [[ -f "/home/wassen/.config/autopackage/paths-bash" ]] && . "/home/wassen/.config/autopackage/paths-bash"
 
-    unset GNOME_KEYRING_CONTROL
-    unset GNOME_KEYRING_PID
+    #unset GNOME_KEYRING_CONTROL
+    #unset GNOME_KEYRING_PID
 
 fi
 
