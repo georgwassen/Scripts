@@ -475,6 +475,11 @@ function plot() {
 	else
 	    DATA="^$DATA:"
 	fi
+
+    DATA=${DATA/\(/\\\(}        # FIX: mask '(' and ')' with a \ for following egrep
+    DATA=${DATA/\)/\\\)}
+    #echo DATA=$DATA
+
 	tail -n+2 $DATFILE | egrep "$DATA" | cut -d: -f$XCOL- | tr ':' '\t'| awk "$AWK" >> $GPFILE
 	echo 'e' >> $GPFILE
     done
