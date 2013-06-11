@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# open is a command existing on MacOS to open arbitrary files.
+# This command is used in quite some Makefiles by Stefan and Pablo.
+# To avoid errors, this script tries to mimic its behavior.
+
+nohup xdg-open $1 &> /dev/null &
+
