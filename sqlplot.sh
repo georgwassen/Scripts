@@ -31,7 +31,16 @@
 #     (see tics(): better but not foolprof...)
 
 
-VERSION="0.8 (LfBS branch) 13.7.2007"
+#VERSION="0.8 (LfBS branch) 13.7.2007"
+VERSION="0.9 (14.6.2013)"                 # add setting variables to database selects
+
+
+
+
+# IDEAS for improvements ###############################################
+#  * drop into sqlite3 subshell for dataset modification (create view, update, insert)
+
+
 
 # global settings (to sqlite3- and gnuplot executables) ################
 SQL="sqlite3"
@@ -101,6 +110,8 @@ function help() {
 	    echo 'set xxx - set gnuplot option'
 	    echo '          the settings are stored internally and applied to every plot.'
 	    echo '          (please refer to gnuplot documentation for possible settings)'
+        echo '          use $(select ...) to retreive data from DB'
+        echo '           the query should select one field in one row'
 	    echo '          some important examples:'
 	    echo "            set title 'Hello World'"
 	    echo "            set xlabel 'x axis'"
@@ -113,6 +124,8 @@ function help() {
 	    echo "          the following is recommanded for splot:"
 	    echo "            set ticslevel 0"
 	    echo "            set hidden3d"
+        echo "           helper command: log2tics <axis> <start> <step> <end>"
+        echo "            yields: set <axis>tics ( '1k' 1024, '4k' 4096, ...)"
 	    ;;
 	'unset')
 	    echo 'unset xxx - remove setting from internal storage'
@@ -217,6 +230,62 @@ function sql_select() {
     echo
 }
 
+function process_embedded_sql()
+{
+    STRING=$1
+    # execute queries in $STRING
+    while /bin/true; do
+        # current length of string
+        LEN=${#STRING}
+        echo "  LEN='$LEN'" >> stderr
+        # substring up to first '$(' 
+        PREFIX=${STRING%%\$(*}
+        echo "  PREFIX='$PREFIX'" >> stderr
+        # pos of '$(' is length of substring
+        POS=${#PREFIX}
+        # increment by 2 for first position of query
+        POS=$(( POS + 2 ))
+        echo "  POS='$POS'" >> stderr
+        if [[ $POS -ge $LEN ]]; then
+            # break, if that's longer than string: no more '$('
+            break
+        fi
+        # find ending ')'
+        END=$((POS+1))
+        # count nested parentheses
+        PAREN=0
+        while [[ $END -lt $LEN ]]; do
+            if [[ ${STRING:$END:1} = '(' ]]; then
+                # found opening parenthesis: increment
+                PAREN=$(( PAREN + 1 ))
+            elif [[ ${STRING:$END:1} = ')' ]]; then
+                # found closing parenthesis
+                if [[ $PAREN -gt 0 ]]; then
+                    # if still nested: decrement
+                    PAREN=$(( PAREN - 1 ))
+                else
+                    # else: found matching closing parenthesis
+                    break
+                fi
+            fi
+            # advance to next character
+            END=$(( END + 1 ))
+        done
+        # previous loop was left by closing parenthesis or end-of-string
+        echo "  END='$END'" >> stderr
+        # query is text between POS and END-1
+        QUERY=${STRING:$POS:$(( END-POS ))}
+        echo "  QUERY='$QUERY'" >> stderr
+        # execute query...
+        ANSWER=$($SQL -csv -noheader $FILE "$QUERY")
+        echo "  ANSWER='$ANSWER'" >> stderr
+        # replace '$(' .. ')' with answer to query
+        STRING=$PREFIX$ANSWER${STRING:$(( END+1))}
+        echo "  new STRING='$STRING'" >> stderr
+    done
+    echo "$STRING"
+}
+
 function do_set() {
 	# MODE is set to one of (set,unset,reset,show)
 	#echo "this is do_set with MODE=$MODE"
@@ -230,12 +299,17 @@ function do_set() {
 	fi
 	case $MODE in
 		'set')
-			CURRENT_SET=`echo "$CURRENT_SET" | egrep -v "^set $SETTING"`
-			CURRENT_SET=`printf "%s\n%s" "$CURRENT_SET" "set $PARAMS"`
-			#CURRENT_SET="${CURRENT_SET}set $PARAMS\n"
+            # set
+            if [[ $PARAMS ]]; then
+                CURRENT_SET=`echo "$CURRENT_SET" | egrep -v "^set $SETTING"`
+                CURRENT_SET=`printf "%s\n%s" "$CURRENT_SET" "set $PARAMS"`
+                #CURRENT_SET="${CURRENT_SET}set $PARAMS\n"
+            fi
 			;;
 		'unset')
-			CURRENT_SET=`echo "$CURRENT_SET" | egrep -v "^set $SETTING"`
+            if [[ $PARAMS ]]; then
+                CURRENT_SET=`echo "$CURRENT_SET" | egrep -v "^set $SETTING"`
+            fi
 			;;
 		'reset')
 			CURRENT_SET=''
@@ -325,7 +399,7 @@ function tics() {
 
 function plot() {
     if [ ! -s $TMPFILE ]; then
-	echo 'Please first execute a query that can be plotted.'
+	echo 'Please start with executing a query that can be plotted.'
 	echo
 	return
     fi
@@ -379,7 +453,12 @@ function plot() {
 	echo "set zlabel '$VALUE'" >> $GPFILE
     fi
 
-    echo "$CURRENT_SET" >> $GPFILE
+    echo ---------------------------------------------------------------------
+    echo "$CURRENT_SET"
+    echo ---------------------------------------------------------------------
+	process_embedded_sql "$CURRENT_SET" 
+    echo ---------------------------------------------------------------------
+    process_embedded_sql "$CURRENT_SET" >> $GPFILE
     
     if [ -n "$PARAMS" ]; then
   	# export to file
