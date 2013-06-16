@@ -29,11 +29,15 @@
 
 VERBOSE=-v
 
+[[ $(hostname). =~ ([a-zA-Z0-9]*)\..* ]]
+HOST=${BASH_REMATCH[1]}
+
+
 
 #
 # Helper function to log into file and to screen
 #
-LOGFILE=./backup_$(date +%F_%H-%M-%S).log
+LOGFILE=./backup_${HOST}_$(date +%F_%H-%M-%S).log
 function log()
 {
     echo $* | tee -a $LOGFILE
@@ -58,7 +62,7 @@ STARTTIME=$(date +%T)
 log "Starting backup at $STARTTIME to $DIR"
 
 
-DIR_DATE=$DIR/$(date +"%Y_%m_%d")/
+DIR_DATE=$DIR/${HOST}_$(date +"%Y_%m_%d")/
 if [ -d $DIR_DATE ]; then
     log Directory $DIR_DATE exists, skipping full backup, doing only rsync.
     # TODO : rsync of Home-Dir
@@ -68,13 +72,19 @@ else
 
     # 2012-05-04: add --no-dereference
     cp --archive --no-dereference $VERBOSE /home/georg $DIR_DATE
-
 fi
-RSYNC_OPTIONS="-art --fuzzy --delete-delay $VERBOSE "
-log "Starting rsync bilder at $(date +%F_%H-%M-%S)"
-rsync $RSYNC_OPTIONS /home/bilder/ $DIR/bilder
-log "Starting rsync musik at $(date +%F_%H-%M-%S)"
-rsync $RSYNC_OPTIONS /home/musik/lokal/ $DIR/musik
+
+
+
+if [[ $HOST = venus ]]; then
+    RSYNC_OPTIONS="-art --fuzzy --delete-delay $VERBOSE "
+    log "Starting rsync bilder at $(date +%F_%H-%M-%S)"
+    rsync $RSYNC_OPTIONS /home/bilder/ $DIR/bilder
+    log "Starting rsync musik at $(date +%F_%H-%M-%S)"
+    rsync $RSYNC_OPTIONS /home/musik/lokal/ $DIR/musik
+else
+    log "Skipping rsync bilder and musik"
+fi
 
 
 
