@@ -64,6 +64,15 @@ function mkcd () {
     mkdir -p "$@" && eval cd "\"\$$#\""
 }
 
+# highlight words in output.
+# use: cat /etc/passwd | hl root user
+# from: http://chneukirchen.org/blog/archive/2013/07/summer-of-scripts-hl.html 
+# ported to bash by me using xargs
+#   zsh's -e${^*} expands $*="a b c" to -ea -eb -ec
+function hl () { 
+    egrep --color=always -e '' $(echo $* | xargs -n1 printf "-e%s "); 
+}
+
 # grep output of ps (without grep itself)
 function psgrep ()
 {
