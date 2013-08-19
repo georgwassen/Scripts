@@ -20,7 +20,7 @@
 # Write 'plot' to display the last query, write 'plot file.png' to
 # write the plot to a file.
 #
-# copyright 2007 Georg Wassen   georg (at) wassen (dot) net
+# copyright 2007-2013 Georg Wassen   georg (at) wassen (dot) net
 # This script is released unter the Terms of the GNU GPL, version 2
 # 
 ########################################################################
