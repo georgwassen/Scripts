@@ -1,0 +1,52 @@
+#!/usr/bin/python
+
+# :set ft=python
+import smtplib, getpass, socket, fileinput, argparse, sys
+
+sender = getpass.getuser() + "@" + socket.gethostname()
+receiver = ''
+smtp = 'galaxy'
+subject = '<empty>'
+body = ''
+
+parser = argparse.ArgumentParser(description="""Simple Python SMTP mailer.  
+    This program is quite similar to mail but does not require a local MTA (sendmail etc.).
+    Instead, it relies on a SMTP server on the local network (which must be open, i.e. not ask for a password). """)
+parser.add_argument("to", help="specify the recipient")
+parser.add_argument("-r", "--from-addr", help="specify the sender")
+parser.add_argument("-s", "--subject", help="specify the sender")
+parser.add_argument("-a", "--attachment", action='append', help="append file(s) (only text files)")
+
+args = parser.parse_args()
+
+print args
+
+if args.from_addr:
+    sender = args.from_addr
+
+if args.subject:
+    subject = args.subject
+
+receiver = args.to
+
+body = body + "From:    " + sender + "\n"
+body = body + "To:      " + receiver + "\n" 
+body = body + "Subject: " + subject + "\n" 
+body = body + "\n"
+
+while True:
+    try:
+        line  = raw_input()
+    except EOFError:
+        break
+    if line == ".": break
+    body = body + line + "\n"
+
+if args.attachment:
+    for line in fileinput.input(args.attachment):
+        body = body + line
+
+
+#print body
+smtplib.SMTP(smtp).sendmail(sender, receiver, body)
+
