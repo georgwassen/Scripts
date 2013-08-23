@@ -19,8 +19,6 @@ parser.add_argument("-a", "--attachment", action='append', help="append file(s) 
 
 args = parser.parse_args()
 
-print args
-
 if args.from_addr:
     sender = args.from_addr
 
