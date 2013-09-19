@@ -1,0 +1,24 @@
+#!/bin/bash
+
+TERM=$1
+
+if [[ $TERM = -h ]]; then
+    echo "Grep in *.bib files"
+    echo "Usage:"
+    echo "  $(basename $0) [-h] TERM"
+    echo "  (TERM may use egrep regular expressions)"
+    echo "  e.g.: $0 Pellizzoni[0-9]*Predictable"
+    exit
+fi
+
+IFS=:
+while read FILE POS LINE; do
+    echo $FILE:$POS
+    sed -n $POS',/^}$/p' $FILE | egrep --color=always -e '' -e $TERM
+    # sed: search from position (line number) up to the next line containing only /}/
+    # (my bib files are usually formatted accordingly)
+    # egrep: used to highlight the search term
+    # (first -e: show every line, second -e: highligh $TERM)
+done < <(egrep -n "@.*{.*$TERM.*," *.bib)
+
+
