@@ -3,6 +3,35 @@
 # open is a command existing on MacOS to open arbitrary files.
 # This command is used in quite some Makefiles by Stefan and Pablo.
 # To avoid errors, this script tries to mimic its behavior.
+if [[ $# -eq 1 ]]; then
+    FILE=$1
+    # exactly one parameter: must be the file name
+    if [[ ! -r $FILE ]]; then
+        # file does not exist
 
-nohup xdg-open $1 &> /dev/null &
+        # find matching files, grep only .PDF
+        LIST=$(ls $FILE* | egrep '\.pdf$')
+
+        # test, if only a single file matched:
+        CNT=$(echo $LIST | wc -w)
+        if [[ $CNT -eq 0 ]]; then
+            echo "found no matches."
+            FILE=''
+        elif [[ $CNT -eq 1 ]]; then
+            FILE=$LIST
+        else
+            echo "found multiple matches:"
+            echo "$LIST"
+            echo "please specify more precisely."
+            FILE=''
+        fi
+    fi
+else
+    echo "Use: $0 <filename to open>"
+fi
+
+
+if [[ $FILE ]]; then
+    nohup xdg-open $FILE &> /dev/null &
+fi
 

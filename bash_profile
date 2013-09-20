@@ -52,6 +52,8 @@ alias ls="ls --color=auto"
 alias ll="ls -l --color=auto"
 alias la="ls -la --color=auto"
 
+alias o=open
+
 # shorthands for multiple parent directories
 alias cd..="cd .."
 alias cd...="cd ../.."
