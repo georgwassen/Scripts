@@ -2,8 +2,9 @@
 
 TERM=$1
 
-if [[ $TERM = -h ]]; then
-    echo "Grep in *.bib files"
+if [[ $TERM = -h || $TERM = --help || ! $TERM ]]; then
+    echo "Grep in *.bib files (only key)"
+    echo "Prints entire bib entries."
     echo "Usage:"
     echo "  $(basename $0) [-h] TERM"
     echo "  (TERM may use egrep regular expressions)"
