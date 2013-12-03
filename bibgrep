@@ -1,6 +1,7 @@
 #!/bin/bash
 
 TERM=$1
+shift
 
 if [[ $TERM = -h || $TERM = --help || ! $TERM ]]; then
     echo "Grep in *.bib files (only key)"
@@ -9,8 +10,17 @@ if [[ $TERM = -h || $TERM = --help || ! $TERM ]]; then
     echo "  $(basename $0) [-h] TERM"
     echo "  (TERM may use egrep regular expressions)"
     echo "  e.g.: $0 Pellizzoni[0-9]*Predictable"
+    echo "  Parameters: "
+    echo "    -e   Open found places in editor"
     exit
 fi
+
+while [[ $# -ge 1 ]]; do
+    if [[ $1 = '-e' ]]; then
+        PARAM_EDIT="gvim -p "
+    fi
+    shift
+done
 
 IFS=:
 while read FILE POS LINE; do
@@ -20,6 +30,15 @@ while read FILE POS LINE; do
     # (my bib files are usually formatted accordingly)
     # egrep: used to highlight the search term
     # (first -e: show every line, second -e: highligh $TERM)
+    if [[ "$PARAM_EDIT" ]]; then
+        PARAM_EDIT="$PARAM_EDIT $FILE +$POS "
+        #echo $PARAM_EDIT
+    fi
 done < <(egrep -n "@.*{.*$TERM.*," *.bib)
+IFS=' '
 
+if [[ "$PARAM_EDIT" ]]; then
+    echo "$PARAM_EDIT"
+    $PARAM_EDIT
+fi
 
