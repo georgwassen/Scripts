@@ -23,6 +23,7 @@ export PATH=~/scripts:$PATH:~/bin:~/bin/dmd/bin
 
 # set BASH keybindings and default editor to VIM
 set -o vi
+export VISUAL=vim
 export EDITOR=vim
 
 # History: don't record duplicated entries (make, make, make, make)
