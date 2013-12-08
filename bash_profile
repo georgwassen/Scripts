@@ -41,6 +41,7 @@ alias vi='vim'          # vi is always vim
 alias vim='vim -p'      # always use -p (open multiple files in tabs instead of same buffer)
 alias gvim='gvim -p'    # dito for gvim
 alias m='make'
+alias g='git'
 
 # grep: use color
 ## edit 16.6.2012: it's a bad idea to include -n (numbers) 
