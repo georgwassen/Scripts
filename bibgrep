@@ -22,9 +22,17 @@ while [[ $# -ge 1 ]]; do
     shift
 done
 
+# check, if there are *.bib files in the current directory
+if [[ $(ls *.bib 2> /dev/null | wc -l) -eq 0 ]]; then 
+    # find bib files...
+    FILES=$(sed -n 's/\\addbibresource{\([^}]\+\)}/\1/p' *.tex)
+else
+    FILES=*.bib
+fi
+
 IFS=:
 while read FILE POS LINE; do
-    echo $FILE:$POS
+    echo -e "\033[1;33m$FILE\033[0m:$POS"
     sed -n $POS',/^}$/p' $FILE | egrep --color=always -e '' -e $TERM
     # sed: search from position (line number) up to the next line containing only /}/
     # (my bib files are usually formatted accordingly)
@@ -34,7 +42,7 @@ while read FILE POS LINE; do
         PARAM_EDIT="$PARAM_EDIT $FILE +$POS "
         #echo $PARAM_EDIT
     fi
-done < <(egrep -n "@.*{.*$TERM.*," *.bib)
+done < <(echo $FILES |xargs egrep -n "@.*{.*$TERM.*,")
 IFS=' '
 
 if [[ "$PARAM_EDIT" ]]; then
