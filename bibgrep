@@ -1,4 +1,24 @@
 #!/bin/bash
+#===============================================================================
+#
+#          FILE:  bibgrep
+# 
+#         USAGE:  ./bibgrep [-h|--help] <regex> [-e] 
+# 
+#   DESCRIPTION:  searches BIB files (BibLaTeX) for regex and displays the entire entry
+#                 Parameters:   -h/--help    show usage
+#                               -e           open BIB file in gvim at line matching the first regex
+# 
+#  REQUIREMENTS:  ---
+#          BUGS:  ---
+#         NOTES:  ---
+#        AUTHOR:  Georg Wassen (georg.wassen@googlemail.com), 
+#       COMPANY:  
+#       VERSION:  1.0
+#       CREATED:  19.09.2013 08:44:11
+#      REVISION:  ---
+#===============================================================================
+
 
 TERM=$1
 shift
@@ -11,7 +31,7 @@ if [[ $TERM = -h || $TERM = --help || ! $TERM ]]; then
     echo "  (TERM may use egrep regular expressions)"
     echo "  e.g.: $0 Pellizzoni[0-9]*Predictable"
     echo "  Parameters: "
-    echo "    -e   Open found places in editor"
+    echo "    -e   Open found places in gvim"
     exit
 fi
 
@@ -24,20 +44,25 @@ done
 
 # check, if there are *.bib files in the current directory
 if [[ $(ls *.bib 2> /dev/null | wc -l) -eq 0 ]]; then 
-    # find bib files...
+    # no *.bib files in $PWD
+    # find bib files used by BibLaTeX
     FILES=$(sed -n 's/\\addbibresource{\([^}]\+\)}/\1/p' *.tex)
+    # TODO : if using BibTeX, use other regex to extract BIB files...
 else
     FILES=*.bib
 fi
 
 IFS=:
 while read FILE POS LINE; do
+    # write file and line
     echo -e "\033[1;33m$FILE\033[0m:$POS"
+
     sed -n $POS',/^}$/p' $FILE | egrep --color=always -e '' -e $TERM
     # sed: search from position (line number) up to the next line containing only /}/
     # (my bib files are usually formatted accordingly)
     # egrep: used to highlight the search term
     # (first -e: show every line, second -e: highligh $TERM)
+
     if [[ "$PARAM_EDIT" ]]; then
         PARAM_EDIT="$PARAM_EDIT $FILE +$POS "
         #echo $PARAM_EDIT
@@ -45,6 +70,7 @@ while read FILE POS LINE; do
 done < <(echo $FILES |xargs egrep -n "@.*{.*$TERM.*,")
 IFS=' '
 
+# open in gvim (if that parameter was given)
 if [[ "$PARAM_EDIT" ]]; then
     echo "$PARAM_EDIT"
     $PARAM_EDIT
