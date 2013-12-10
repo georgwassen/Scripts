@@ -1,9 +1,9 @@
 #!/bin/bash
 #===============================================================================
 #
-#          FILE:  mount.sh
+#          FILE:  crypt
 # 
-#         USAGE:  ./mount.sh 
+#         USAGE:  ./crypt.sh 
 # 
 #   DESCRIPTION:  Script to (un)mount crypt container
 #                 see: 
@@ -14,7 +14,7 @@
 #  REQUIREMENTS:  ---
 #          BUGS:  ---
 #         NOTES:  ---
-#        AUTHOR:   (), 
+#        AUTHOR:  Georg Wassen (georg.wassen@googlemail.com), 
 #       COMPANY:  
 #       VERSION:  1.0
 #       CREATED:  09.01.2012 12:22:56 CET
@@ -23,6 +23,8 @@
 
 # TODO: find unused loop device...
 LOOP=/dev/loop3
+# user.group 
+CRYPTUSERGROUP=wassen.team
 
 #
 # print help
@@ -114,13 +116,13 @@ elif [ "$1" == 'mount' ]; then
 
     # create a mount directory (based on the container file name) and changes its ownership to the user
     sudo mkdir -p /mnt/$MAPPER_NAME
-    sudo chown wassen.team /mnt/$MAPPER_NAME
+    sudo chown $CRYPTUSERGROUP /mnt/$MAPPER_NAME
 
     # mount mapped LUKS partition to the created mountpoint
     sudo mount -t ext3 /dev/mapper/$MAPPER_NAME /mnt/$MAPPER_NAME
 
     # grant access rights to the user
-    sudo chown wassen.team /mnt/$MAPPER_NAME
+    sudo chown $CRYPTUSERGROUP /mnt/$MAPPER_NAME
 
 elif [ "$1" == 'umount' ]; then
     CONTAINER=$2
