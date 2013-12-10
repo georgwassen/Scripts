@@ -16,9 +16,13 @@ This is my Bash configuration. The original file `~/.bash_profile` sources
 this one.
 
 
-bibgrep
--------
-Grep on keys in a BibLaTeX database.
+bibgrep and texgrep
+-------------------
+
+Grep on keys in a BibLaTeX database and in TEX files.
+`bibgrep` puts the last key in the X11 clipboard (xsel -b)
+and `texgrep` uses the clipboard as search term if no parameter 
+was provided on the command line.
 
 
 crypt.sh
