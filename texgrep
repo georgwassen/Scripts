@@ -1,0 +1,31 @@
+#!/bin/bash
+#===============================================================================
+#
+#          FILE:  texgrep
+# 
+#         USAGE:  ./texgrep
+# 
+#   DESCRIPTION:  grep in TEX files
+# 
+#       OPTIONS:  ---
+#  REQUIREMENTS:  ---
+#          BUGS:  ---
+#         NOTES:  ---
+#        AUTHOR:  Georg Wassen (georg.wassen@googlemail.com), 
+#       COMPANY:  
+#       VERSION:  1.0
+#       CREATED:  10.12.2013 12:57:06 CET
+#      REVISION:  ---
+#===============================================================================
+
+if [[ $# -eq 0 ]]; then
+    # no parameter: use clipboard buffer
+    TERM=$(xsel -b)
+else
+    TERM=$1
+fi
+
+echo "TERM='$TERM'"
+
+egrep -n --color=auto "$TERM" *.tex
+
