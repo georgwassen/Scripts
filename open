@@ -1,8 +1,32 @@
 #!/bin/bash
+#===============================================================
+#
+#          FILE:  test.sh
+# 
+#         USAGE:  ./test.sh 
+# 
+#   DESCRIPTION: open is a command existing on MacOS to open arbitrary files.
+#                This command is used in quite some Makefiles by our Mac users.
+#                To avoid errors, this script tries to mimic its behavior on Linux.
+#
+#                For convenience, if the given parameter does not exist,
+#                this script automatically extends the given parameter with '.pdf'. 
+#                In LaTeX projects, this allows to enter: "open docu<TAB><ENTER>"
+#                although <TAB> completes only up to "open document.",
+#                but `open` chooses to open the file document.pdf
+# 
+#       OPTIONS:  ---
+#  REQUIREMENTS:  ---
+#          BUGS:  ---
+#         NOTES:  ---
+#        AUTHOR:  Georg Wassen (georg.wassen@googlemail.com), 
+#       COMPANY:  
+#       VERSION:  1.0
+#       CREATED:  11.06.2013 07:49:18 CET
+#      REVISION:  ---
+#
+#===============================================================
 
-# open is a command existing on MacOS to open arbitrary files.
-# This command is used in quite some Makefiles by Stefan and Pablo.
-# To avoid errors, this script tries to mimic its behavior.
 if [[ $# -eq 1 ]]; then
     FILE=$1
     # exactly one parameter: must be the file name
@@ -18,6 +42,7 @@ if [[ $# -eq 1 ]]; then
             echo "found no matches."
             FILE=''
         elif [[ $CNT -eq 1 ]]; then
+            # exactly one match: open this file
             FILE=$LIST
         else
             echo "found multiple matches:"
@@ -30,7 +55,7 @@ else
     echo "Use: $0 <filename to open>"
 fi
 
-
+# use xdg-open to find a matching application for the file type
 if [[ $FILE ]]; then
     nohup xdg-open $FILE &> /dev/null &
 fi
