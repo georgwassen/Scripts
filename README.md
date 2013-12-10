@@ -43,5 +43,8 @@ Python script to replace `mail` when no local MTA is running.
 It uses an open SMTP server in the local network.
 
 
-
+sqlplot.sh
+----------
+Data series analysis tool based on SQLite and Gnuplot.
+See http://www.wassen.net/sql-plot.html
 
