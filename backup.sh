@@ -12,19 +12,19 @@
 #  REQUIREMENTS:  ---
 #          BUGS:  ---
 #         NOTES:  ---
-#        AUTHOR:   (), 
+#        AUTHOR:  Georg Wassen (georg.wassen@googlemail.com), 
 #       COMPANY:  
 #       VERSION:  1.0
 #       CREATED:  03.09.2011 22:35:01 CEST
 #      REVISION:  ---
 #===============================================================================
 #
-# Konzept:
-#  - home : jedesmal komplett
-#  - musik, bilder : inkrementell
+# Concept:
+#  - home : always a complete copy
+#  - musik, bilder : incremental (rsync)
 #
-# Verbesserungen/Ideen:
-#  - Blacklist : Verzeichnisse nicht berücksichtigen (.thumbnails, Downloads, ...)
+# open improvements/ideas:
+#  - Blacklist : directories not to include in backup (.thumbnails, Downloads, ...)
 #
 
 VERBOSE=-v
