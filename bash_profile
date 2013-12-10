@@ -7,12 +7,13 @@
 #
 # here are the actual settings
 #
-# .bashrc : source .bash_profile
-# .bash_profile : source ~/scripts/bash_profile (this file)
+# ~/.bashrc : source ~/.bash_profile
+# ~/.bash_profile : source ~/scripts/bash_profile (this file)
 #
 
 
 # remap CAPS-LOCK key to Escape
+# (for vi)
 if [ _$TERM == _xterm -a _$DISPLAY != _ ]; then
     setxkbmap -model ms
     xmodmap ~/scripts/xmodmap-esc
@@ -34,14 +35,17 @@ export HISTIGNORE='svn ci*:ls'
 # set limits
 ulimit -c 400000        # max core dump size
 #ulimit -v 2097152       # limit max. virtual Memory per process
+                        # that was a dumb idea: some processes (Firefox, virtual box) kept
+                        # crashing with no meaningful message.
 
 # aliases
 alias v='gvim'          # v is gvim (GUI)
 alias vi='vim'          # vi is always vim
 alias vim='vim -p'      # always use -p (open multiple files in tabs instead of same buffer)
 alias gvim='gvim -p'    # dito for gvim
-alias m='make'
-alias g='git'
+alias m='make'          # short for make
+alias g='git'           # short for git
+alias o=open            # short for open
 
 # grep: use color
 ## edit 16.6.2012: it's a bad idea to include -n (numbers) 
@@ -54,8 +58,6 @@ alias fgrep='fgrep --color=auto' 2>/dev/null
 alias ls="ls --color=auto"
 alias ll="ls -l --color=auto"
 alias la="ls -la --color=auto"
-
-alias o=open
 
 # shorthands for multiple parent directories
 alias cd..="cd .."
@@ -84,6 +86,7 @@ function psgrep ()
     ps aux | grep -v 'grep' | grep "$1" 
 }
 
+# don't remember, why this `which` is better than the original one...
 if alias which >/dev/null 2>/dev/null; then
     unalias which
 fi
