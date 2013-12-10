@@ -26,6 +26,7 @@ shift
 if [[ $TERM = -h || $TERM = --help || ! $TERM ]]; then
     echo "Grep in *.bib files (only key)"
     echo "Prints entire bib entries."
+    echo "The last found BIB key is put in the clipboard buffer."
     echo "Usage:"
     echo "  $(basename $0) [-h] TERM"
     echo "  (TERM may use egrep regular expressions)"
@@ -62,6 +63,15 @@ while read FILE POS LINE; do
     # (my bib files are usually formatted accordingly)
     # egrep: used to highlight the search term
     # (first -e: show every line, second -e: highligh $TERM)
+
+    # extract bib key from $LINE
+    if [[ $LINE =~ \{([^,]*), ]]; then
+        KEY=${BASH_REMATCH[1]}
+        #echo "KEY='$KEY'"
+
+        # put it in the clipboard buffer
+        echo -n "$KEY" | xsel -b
+    fi
 
     if [[ "$PARAM_EDIT" ]]; then
         PARAM_EDIT="$PARAM_EDIT $FILE +$POS "
