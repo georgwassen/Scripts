@@ -19,11 +19,7 @@
 #      REVISION:  ---
 #===============================================================================
 
-
-TERM=$1
-shift
-
-if [[ $TERM = -h || $TERM = --help || ! $TERM ]]; then
+function usage() {
     echo "Grep in *.bib files (only key)"
     echo "Prints entire bib entries."
     echo "The last found BIB key is put in the clipboard buffer."
@@ -33,15 +29,40 @@ if [[ $TERM = -h || $TERM = --help || ! $TERM ]]; then
     echo "  e.g.: $0 Pellizzoni[0-9]*Predictable"
     echo "  Parameters: "
     echo "    -e   Open found places in gvim"
+}
+
+if [[ $# -eq 0 ]]; then
+    usage
     exit
 fi
 
-while [[ $# -ge 1 ]]; do
-    if [[ $1 = '-e' ]]; then
-        PARAM_EDIT="gvim -p "
-    fi
+ARGS=$(getopt -o 'eh' -l 'help,edit' -- "$@")   # parse parameters and store normalized string in $ARGS
+eval set -- "$ARGS";                           # set parameters to preprocessed string $ARGS
+
+while [[ $# -gt 0 ]]; do
+    #echo "1='$1'"
+    case "$1" in
+        -h|--help)
+            usage
+            exit
+            ;;
+        -e|--edit)
+            PARAM_EDIT="gvim -p "
+            ;;
+        --)
+            # ignore
+            ;;
+        *)
+            # set as search term
+            PARAM_TERM="$1"
+            ;;
+    esac
     shift
 done
+
+#echo "PARAM_TERM='$PARAM_TERM'"
+
+
 
 # check, if there are *.bib files in the current directory
 if [[ $(ls *.bib 2> /dev/null | wc -l) -eq 0 ]]; then 
@@ -58,11 +79,11 @@ while read FILE POS LINE; do
     # write file and line
     echo -e "\033[1;33m$FILE\033[0m:$POS"
 
-    sed -n $POS',/^}$/p' $FILE | egrep --color=always -e '' -e $TERM
+    sed -n $POS',/^}$/p' $FILE | egrep --color=always -e '' -e $PARAM_TERM
     # sed: search from position (line number) up to the next line containing only /}/
     # (my bib files are usually formatted accordingly)
     # egrep: used to highlight the search term
-    # (first -e: show every line, second -e: highligh $TERM)
+    # (first -e: show every line, second -e: highligh $PARAM_TERM)
 
     # extract bib key from $LINE
     if [[ $LINE =~ \{([^,]*), ]]; then
@@ -77,7 +98,7 @@ while read FILE POS LINE; do
         PARAM_EDIT="$PARAM_EDIT $FILE +$POS "
         #echo $PARAM_EDIT
     fi
-done < <(echo $FILES |xargs egrep -n "@.*{.*$TERM.*,")
+done < <(echo $FILES |xargs egrep -n "@.*{.*$PARAM_TERM.*,")
 IFS=' '
 
 # open in gvim (if that parameter was given)
