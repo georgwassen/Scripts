@@ -20,15 +20,18 @@
 #===============================================================================
 
 function usage() {
+    echo
     echo "Grep in *.bib files (only key)"
     echo "Prints entire bib entries."
     echo "The last found BIB key is put in the clipboard buffer."
     echo "Usage:"
-    echo "  $(basename $0) [-h] TERM"
-    echo "  (TERM may use egrep regular expressions)"
-    echo "  e.g.: $0 Pellizzoni[0-9]*Predictable"
+    echo "  $(basename $0) [parameters] <regex>"
+    echo "    (may use egrep regular expressions)"
+    echo "    e.g.: $(basename $0) Pellizzoni[0-9]*Predictable"
     echo "  Parameters: "
-    echo "    -e   Open found places in gvim"
+    echo "    -e  --edit    Open found places in gvim"
+    echo "    -h  --help    Show this help"
+    echo
 }
 
 if [[ $# -eq 0 ]]; then
