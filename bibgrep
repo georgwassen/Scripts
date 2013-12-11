@@ -43,6 +43,8 @@ while [[ $# -ge 1 ]]; do
     shift
 done
 
+PARAM_FULLTEXT=1
+
 # check, if there are *.bib files in the current directory
 if [[ $(ls *.bib 2> /dev/null | wc -l) -eq 0 ]]; then 
     # no *.bib files in $PWD
@@ -57,9 +59,15 @@ function print_key() {
   IFS_BAK=$IFS
   local FILE POS LINE
 
+  #echo "ARGS='$@'"
+
   IFS=:
   read  FILE POS LINE <<< "$@"
   IFS=$IFS_BAK
+
+  #echo "FILE='$FILE'"
+  #echo "POS='$POS'"
+  #echo "LINE='$LINE'"
 
     # write file and line
     echo -e "\033[1;33m$FILE\033[0m:$POS"
@@ -86,10 +94,27 @@ function print_key() {
 
 }
 
-
-while read LINE; do
-    print_key $LINE
-done < <(echo $FILES |xargs egrep -n "@.*{.*$TERM.*,")
+if [[ $PARAM_FULLTEXT -eq 1 ]]; then
+    for FILE in $FILES; do
+        POS=0
+        while read LINE; do
+            POS=$(( POS + 1 ))
+            if [[ $LINE =~ ^@[^{]+\{([^,]+),$ ]]; then
+                CURRENT_KEY=${BASH_REMATCH[1]}
+                CURRENT_POS=$POS
+            fi
+            if [[ $LINE =~ $TERM ]]; then
+                echo "$FILE:$CURRENT_POS:$CURRENT_KEY"
+            fi
+        done < $FILE | sort -t: -k3 -u | while read LINE; do
+            print_key $LINE
+        done
+    done
+else
+    while read LINE; do
+        print_key $LINE
+    done < <(echo $FILES |xargs egrep -n "@.*{.*$TERM.*,")
+fi
 
 # open in gvim (if that parameter was given)
 if [[ "$PARAM_EDIT" ]]; then
