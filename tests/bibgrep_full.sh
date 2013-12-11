@@ -21,17 +21,18 @@
 SEARCHTERM=Corbet
 
 for FILE in *.bib; do
-
+    POS=0
     while read LINE; do
+        POS=$(( POS + 1 ))
         if [[ $LINE =~ ^@[^{]+\{([^,]+),$ ]]; then
             CURRENT_KEY=${BASH_REMATCH[1]}
+            CURRENT_POS=$POS
         fi
         if [[ $LINE =~ $SEARCHTERM ]]; then
-            echo $CURRENT_KEY
+            echo $FILE:$CURRENT_POS:$CURRENT_KEY
         fi
 
-    done < $FILE | sort | uniq
-
+    done < $FILE | sort -t: -k3 -u
 
 done
 
