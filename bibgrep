@@ -53,8 +53,14 @@ else
     FILES=*.bib
 fi
 
-IFS=:
-while read FILE POS LINE; do
+function print_key() {
+  IFS_BAK=$IFS
+  local FILE POS LINE
+
+  IFS=:
+  read  FILE POS LINE <<< "$@"
+  IFS=$IFS_BAK
+
     # write file and line
     echo -e "\033[1;33m$FILE\033[0m:$POS"
 
@@ -77,8 +83,13 @@ while read FILE POS LINE; do
         PARAM_EDIT="$PARAM_EDIT $FILE +$POS "
         #echo $PARAM_EDIT
     fi
+
+}
+
+
+while read LINE; do
+    print_key $LINE
 done < <(echo $FILES |xargs egrep -n "@.*{.*$TERM.*,")
-IFS=' '
 
 # open in gvim (if that parameter was given)
 if [[ "$PARAM_EDIT" ]]; then
