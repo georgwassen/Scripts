@@ -39,8 +39,11 @@ if [[ $# -eq 0 ]]; then
     exit
 fi
 
-ARGS=$(getopt -o 'eh' -l 'help,edit' -- "$@")   # parse parameters and store normalized string in $ARGS
+ARGS=$(getopt -o 'efh' -l 'help,edit,fulltext' -- "$@")   # parse parameters and store normalized string in $ARGS
 eval set -- "$ARGS";                           # set parameters to preprocessed string $ARGS
+
+PARAM_FULLTEXT=0
+PARAM_EDIT=''
 
 while [[ $# -gt 0 ]]; do
     #echo "1='$1'"
@@ -51,6 +54,9 @@ while [[ $# -gt 0 ]]; do
             ;;
         -e|--edit)
             PARAM_EDIT="gvim -p "
+            ;;
+        -f|--fulltext)
+            PARAM_FULLTEXT=1
             ;;
         --)
             # ignore
@@ -64,8 +70,6 @@ while [[ $# -gt 0 ]]; do
 done
 
 #echo "PARAM_TERM='$PARAM_TERM'"
-
-PARAM_FULLTEXT=1
 
 # check, if there are *.bib files in the current directory
 if [[ $(ls *.bib 2> /dev/null | wc -l) -eq 0 ]]; then 
