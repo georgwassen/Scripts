@@ -20,12 +20,12 @@
 
 if [[ $# -eq 0 ]]; then
     # no parameter: use clipboard buffer
-    TERM=$(xsel -b)
+    PARAM_SEARCHTERM=$(xsel -b)
 else
-    TERM=$1
+    PARAM_SEARCHTERM=$1
 fi
 
-echo "TERM='$TERM'"
+echo "PARAM_SEARCHTERM='$PARAM_SEARCHTERM'"
 
-egrep -n --color=auto "$TERM" *.tex
+egrep -n --color=auto "$PARAM_SEARCHTERM" *.tex
 
