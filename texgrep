@@ -18,11 +18,46 @@
 #      REVISION:  ---
 #===============================================================================
 
-if [[ $# -eq 0 ]]; then
+function usage() {
+    echo
+    echo "Grep in *.tex files"
+    echo "Usage:"
+    echo "  $(basename $0) [parameters] [<regex>]"
+    echo "    (may use egrep regular expressions)"
+    echo "    If no <regex> is provided, using X11 clipboard content (xsel -b)"
+    echo "    e.g.: $(basename $0) Pellizzoni[0-9]*Predictable"
+    echo "  Parameters: "
+    echo "    -h  --help        Show this help"
+    echo
+}
+
+ARGS=$(getopt -o 'h' -l 'help' -- "$@")   # parse parameters and store normalized string in $ARGS
+eval set -- "$ARGS";                           # set parameters to preprocessed string $ARGS
+
+PARAM_SEARCHTERM=''
+PARAM_CONTEXT=''
+
+while [[ $# -gt 0 ]]; do
+    #echo "1='$1'"
+    case "$1" in
+        -h|--help)
+            usage
+            exit
+            ;;
+        --)
+            # ignore
+            ;;
+        *)
+            # set as search term
+            PARAM_SEARCHTERM="$1"
+            ;;
+    esac
+    shift
+done
+
+if [[ -z $PARAM_SEARCHTERM ]]; then
     # no parameter: use clipboard buffer
     PARAM_SEARCHTERM=$(xsel -b)
-else
-    PARAM_SEARCHTERM=$1
 fi
 
 echo "PARAM_SEARCHTERM='$PARAM_SEARCHTERM'"
