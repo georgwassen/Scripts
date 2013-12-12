@@ -128,9 +128,10 @@ if [[ $PARAM_FULLTEXT -eq 1 ]]; then
             if [[ $LINE =~ ^@[^{]+\{([^,]+),$ ]]; then
                 CURRENT_KEY=${BASH_REMATCH[1]}
                 CURRENT_POS=$POS
+                CURRENT_LINE=$LINE
             fi
             if [[ $LINE =~ $PARAM_TERM ]]; then
-                echo "$FILE:$CURRENT_POS:$CURRENT_KEY"
+                echo "$FILE:$CURRENT_POS:$CURRENT_LINE"
             fi
         done < $FILE | sort -t: -k3 -u | while read LINE; do
             print_key $LINE
