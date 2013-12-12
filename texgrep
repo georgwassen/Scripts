@@ -27,11 +27,12 @@ function usage() {
     echo "    If no <regex> is provided, using X11 clipboard content (xsel -b)"
     echo "    e.g.: $(basename $0) Pellizzoni[0-9]*Predictable"
     echo "  Parameters: "
+    echo "    -cN --context=N   Show N lines of context around matches (default: 2)"
     echo "    -h  --help        Show this help"
     echo
 }
 
-ARGS=$(getopt -o 'h' -l 'help' -- "$@")   # parse parameters and store normalized string in $ARGS
+ARGS=$(getopt -o 'c::h' -l 'context::,help' -- "$@")   # parse parameters and store normalized string in $ARGS
 eval set -- "$ARGS";                           # set parameters to preprocessed string $ARGS
 
 PARAM_SEARCHTERM=''
@@ -43,6 +44,12 @@ while [[ $# -gt 0 ]]; do
         -h|--help)
             usage
             exit
+            ;;
+        -c|--context)
+            PARAM_CONTEXT='-2'
+            if [[ $2 ]]; then
+                PARAM_CONTEXT="-$2"
+            fi
             ;;
         --)
             # ignore
@@ -61,6 +68,7 @@ if [[ -z $PARAM_SEARCHTERM ]]; then
 fi
 
 echo "PARAM_SEARCHTERM='$PARAM_SEARCHTERM'"
+echo "PARAM_CONTEXT='$PARAM_CONTEXT'"
 
-egrep -n --color=auto "$PARAM_SEARCHTERM" *.tex
+egrep -n --color=auto $PARAM_CONTEXT "$PARAM_SEARCHTERM" *.tex
 
