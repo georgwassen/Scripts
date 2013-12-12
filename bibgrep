@@ -29,8 +29,9 @@ function usage() {
     echo "    (may use egrep regular expressions)"
     echo "    e.g.: $(basename $0) Pellizzoni[0-9]*Predictable"
     echo "  Parameters: "
-    echo "    -e  --edit    Open found places in gvim"
-    echo "    -h  --help    Show this help"
+    echo "    -e  --edit      Open found places in gvim"
+    echo "    -f  --fulltext  Do a fulltext search (not just in bib keys)"
+    echo "    -h  --help      Show this help"
     echo
 }
 
