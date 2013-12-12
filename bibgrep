@@ -96,15 +96,6 @@ function print_key() {
   #echo "POS='$POS'"
   #echo "LINE='$LINE'"
 
-    # write file and line
-    echo -e "\033[1;33m$FILE\033[0m:$POS"
-
-    sed -n $POS',/^}$/p' $FILE | egrep --color=always -e '' -e $PARAM_TERM
-    # sed: search from position (line number) up to the next line containing only /}/
-    # (my bib files are usually formatted accordingly)
-    # egrep: used to highlight the search term
-    # (first -e: show every line, second -e: highligh $PARAM_TERM)
-
     # extract bib key from $LINE
     if [[ $LINE =~ \{([^,]*), ]]; then
         KEY=${BASH_REMATCH[1]}
@@ -113,6 +104,16 @@ function print_key() {
         # put it in the clipboard buffer
         echo -n "$KEY" | xsel -b
     fi
+
+    # write file and line and bibkey
+    echo -e "\033[1;33m$FILE\033[0m:$POS:\033[1;34m$KEY\033[0m"
+
+    sed -n $POS',/^}$/p' $FILE | egrep --color=always -e '' -e $PARAM_TERM
+    # sed: search from position (line number) up to the next line containing only /}/
+    # (my bib files are usually formatted accordingly)
+    # egrep: used to highlight the search term
+    # (first -e: show every line, second -e: highligh $PARAM_TERM)
+
 
     if [[ "$PARAM_EDIT" ]]; then
         PARAM_EDIT="$PARAM_EDIT $FILE +$POS "
