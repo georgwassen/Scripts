@@ -1,0 +1,31 @@
+#!/bin/bash
+#===============================================================================
+#
+#          FILE:  bar
+# 
+#         USAGE:  ./bar <n>
+# 
+#   DESCRIPTION:  print a /bar/ (<n> hash symbols)
+# 
+#       OPTIONS:  ---
+#  REQUIREMENTS:  ---
+#          BUGS:  ---
+#         NOTES:  ---
+#        AUTHOR:   (), 
+#       COMPANY:  
+#       VERSION:  1.0
+#       CREATED:  13.12.2013 14:08:06 CET
+#      REVISION:  ---
+#===============================================================================
+
+LEN=$1
+if [[ $LEN -lt 0 || $LEN -gt 200 ]]; then
+    echo "invalid argument: '$1' (use: $0 <0..200>)" > /dev/stderr
+fi
+
+BAR=##########
+BAR=$BAR$BAR$BAR$BAR$BAR
+BAR=$BAR$BAR$BAR$BAR$BAR
+
+echo -e ${BAR:0:$LEN}
+
