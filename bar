@@ -19,6 +19,10 @@
 #===============================================================================
 
 LEN=$1
+if [[ -z $LEN ]]; then
+    # read stdin
+    read LEN
+fi
 if [[ $LEN -lt 0 || $LEN -gt 200 ]]; then
     echo "invalid argument: '$1' (use: $0 <0..200>)" > /dev/stderr
 fi
