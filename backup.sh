@@ -284,5 +284,5 @@ log "Finished rsync at $(date +%T)"
 log Backup finished. "($STARTTIME .. $(date +%T))"
 du -sh $TARGETDIR/* 2>/dev/null | tee -a $LOGFILE
 
-cp $LOGFILE $TARGETDIR/
+cp $LOGFILE $TARGETDIR/log/
 
