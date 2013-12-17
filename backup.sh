@@ -23,8 +23,26 @@
 #  - home : always a complete copy
 #  - musik, bilder : incremental (rsync)
 #
-# open improvements/ideas:
-#  - Blacklist : directories not to include in backup (.thumbnails, Downloads, ...)
+# open improvements/ideas, TODO :
+#  - RSYNC_DIRS does not work (see error message in logfile:
+#       Starting rsync bilder at 2013-12-17_21-49-00
+#       sending incremental file list
+#       rsync: change_dir "/home/georg/checkout/Scripts//~/bilder" failed: No such file or directory (2)
+#       
+#       sent 12 bytes  received 12 bytes  48.00 bytes/sec
+#       total size is 0  speedup is 0.00
+#       rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1052) [sender=3.0.9]
+#       RSYNC: 'musik'='~/Musik/lokal'
+#       Starting rsync musik at 2013-12-17_21-49-00
+#       sending incremental file list
+#       rsync: change_dir "/home/georg/checkout/Scripts//~/Musik/lokal" failed: No such file or directory (2)
+#       
+#       sent 12 bytes  received 12 bytes  48.00 bytes/sec
+#       total size is 0  speedup is 0.00
+#       rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1052) [sender=3.0.9]
+#       Finished rsync at 21:49:00
+#       Backup finished. (21:00:42 .. 21:49:00)
+#  - check kdirstat for more dirs to blacklist
 #
 
 RCFILE=~/.backupsh.rc
@@ -260,7 +278,7 @@ RSYNC_OPTIONS="-art --fuzzy --delete-delay $VERBOSE "
 for TOKEN in $RSYNC_DIRS; do
     TARGET=${TOKEN%%=*}
     SOURCE=${TOKEN##*=}
-    echo "RSYNC: '$TARGET'='$SOURCE'"
+    echo "RSYNC: '$SOURCE' -> '$TARGET'"
     if [[ $DRY_RUN -eq 0 ]]; then
         log "Starting rsync $TARGET at $(date +%F_%H-%M-%S)"
         rsync $RSYNC_OPTIONS $SOURCE/ $TARGETDIR/$TARGET
