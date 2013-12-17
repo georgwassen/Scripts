@@ -239,43 +239,30 @@ for D in $REPO_DIRS; do
 done
 
 
+#
+# rsync incremental dirs
+#
 RSYNC_OPTIONS="-art --fuzzy --delete-delay $VERBOSE "
-if [[ $HOST = venus ]]; then
+for TOKEN in $RSYNC_DIRS; do
+    TARGET=${TOKEN%%=*}
+    SOURCE=${TOKEN##*=}
+    echo "RSYNC: '$TARGET'='$SOURCE'"
     if [[ $DRY_RUN -eq 0 ]]; then
-        log "Starting rsync bilder at $(date +%F_%H-%M-%S)"
-        rsync $RSYNC_OPTIONS /home/bilder/ $TARGETDIR/bilder
+        log "Starting rsync $TARGET at $(date +%F_%H-%M-%S)"
+        rsync $RSYNC_OPTIONS $SOURCE/ $TARGETDIR/$TARGET
     else
-        log "DRY-RUN: Starting rsync bilder at $(date +%F_%H-%M-%S)"
-        echo "DRY-RUN: rsync $RSYNC_OPTIONS /home/bilder/ $TARGETDIR/bilder"
+        log "DRY-RUN: Starting rsync $TARGET at $(date +%F_%H-%M-%S)"
+        echo "DRY-RUN: rsync $RSYNC_OPTIONS $SOURCE/ $TARGETDIR/$TARGET"
     fi
+done
 
-    if [[ $DRY_RUN -eq 0 ]]; then
-        log "Starting rsync musik at $(date +%F_%H-%M-%S)"
-        rsync $RSYNC_OPTIONS /home/musik/lokal/ $TARGETDIR/musik
-    else
-        log "DRY-RUN: Starting rsync musik at $(date +%F_%H-%M-%S)"
-        echo "DRY-RUN: rsync $RSYNC_OPTIONS /home/musik/lokal/ $TARGETDIR/musik"
-    fi
-elif [[ $HOST = saturn ]]; then
-    if [[ $DRY_RUN -eq 0 ]]; then
-        log "Starting rsync bilder at $(date +%F_%H-%M-%S)"
-        rsync $RSYNC_OPTIONS ~/bilder/ $DIR/bilder
-    else
-        log "DRY-RUN: Starting rsync bilder at $(date +%F_%H-%M-%S)"
-        echo "DRY-RUN: rsync $RSYNC_OPTIONS ~/bilder/ $DIR/bilder"
-    fi
-
-    if [[ $DRY_RUN -eq 0 ]]; then
-        log "Starting rsync musik at $(date +%F_%H-%M-%S)"
-        rsync $RSYNC_OPTIONS ~/Musik/lokal/ $DIR/musik
-    else
-        log "DRY-RUN: Starting rsync musik at $(date +%F_%H-%M-%S)"
-        echo "DRY-RUN: rsync $RSYNC_OPTIONS ~/Musik/lokal/ $DIR/musik"
-    fi
-else
-    log "Skipping rsync bilder and musik"
-fi
-
+# previous settings:
+# venus:
+#   /home/bilder/        -> $TARGETDIR/bilder
+#   /home/musik/lokal/   -> $TARGETDIR/musik
+# saturn:
+#   ~/bilder/            -> $TARGETDIR/bilder
+#   ~/Musik/lokal/       -> $TARGETDIR/musik
 
 
 
