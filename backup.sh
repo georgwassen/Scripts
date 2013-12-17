@@ -50,6 +50,8 @@ function help()
     echo "                         (store as ${RCFILE})"
     echo "       -d   --dry-run    don't copy anything (hint: use /tmp as target dir)"
     echo "       -h   --help       help"
+    echo "       -r   --repo       directory with repository checkouts"
+    echo "       -s   --rsync      directory to rsync (incremental backup)"
     echo "       -v   --verbose    print what's happening"
     echo ""
     echo ""
@@ -61,7 +63,9 @@ ARGS=$(getopt -o 'bcdhv' -l 'blacklist,config,dry-run,help,verbose' -- "$@")   #
 eval set -- "$ARGS";                           # set parameters to preprocessed string $ARGS
 
 # defaults
-BLACKLIST=''
+BLACKLIST=''    # space separated list, e.g. 'checkout tmp'
+REPO_DIRS=''    # space separated list, supported: Subversion, Git
+RSYNC_DIRS=''   # space separated list of target=source pairs, e.g. 'musik=/home/musik bilder=~/Bilder'
 SOURCEDIR=~
 TARGETDIR=''
 VERBOSE=''
@@ -74,6 +78,7 @@ fi
 
 function print_defconfig()
 {
+    # optional first argument: prefix for printed lines
     echo $1"VERBOSE='$VERBOSE'"
     echo $1"BLACKLIST='$BLACKLIST'"
 }
@@ -93,6 +98,12 @@ while [[ $# -gt 0 ]]; do
         -h|--help)
             help
             exit
+            ;;
+        -r|--repo)
+            REPO_DIRS="$REPO_DIRS $1"
+            ;;
+        -s|--rsync)
+            RSYNC_DIRS="$RSYNC_DIRS $1"
             ;;
         -v|--verbose)
             VERBOSE=-v
@@ -134,7 +145,7 @@ fi
 #
 # Helper function to log into file and to screen
 #
-LOGFILE=./backup_${HOST}_$(date +%F_%H-%M-%S).log
+LOGFILE=$PWD/backup_${HOST}_$(date +%F_%H-%M-%S).log
 function log()
 {
     echo $* | tee -a $LOGFILE
@@ -204,6 +215,28 @@ else
 fi
 
 log "Finished with home at $(date +%T)"
+
+
+#
+# log content of REPO_DIRS (which Git and Subversion repos are there?)
+#
+for D in $REPO_DIRS; do
+    for R in $SOURCEDIR/$D/*; do
+        if [[ -d $R ]]; then
+            if [[ -d $R/.git ]]; then
+                # Git repo
+                log "Git: $R"
+                cat $R/.git/config >> $LOGFILE
+            elif [[ -d $R/.svn ]]; then
+                # Subversion repo
+                log "Subversion: $R"
+                pushd $R
+                svn info >> $LOGFILE
+                popd
+            fi
+        fi
+    done
+done
 
 
 RSYNC_OPTIONS="-art --fuzzy --delete-delay $VERBOSE "
