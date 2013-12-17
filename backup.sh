@@ -177,7 +177,7 @@ if [[ $VERBOSE ]]; then
     echo "| LOGFILE='$LOGFILE' "
     echo "| DIR_DATE='$DIR_DATE' "
     echo "\--------------------------------"
-    sleep 2
+    sleep 5
 fi
 
 
@@ -218,10 +218,10 @@ else
     #        --devices        -- preserve device files (super-user only)
     #        --specials       -- preserve special files
     if [[ $DRY_RUN -eq 0 ]]; then
-        rsync --archive $VERBOSE $EXCLUDE ${SOURCEDIR}/ $DIR_DATE
+        rsync --archive $VERBOSE $EXCLUDE ${SOURCEDIR} $DIR_DATE
     else
         log "DRY-RUN"
-        echo "DRY-RUN: rsync --archive $VERBOSE $EXCLUDE ${SOURCEDIR}/ $DIR_DATE"
+        echo "DRY-RUN: rsync --archive $VERBOSE $EXCLUDE ${SOURCEDIR} $DIR_DATE"
     fi
 fi
 
