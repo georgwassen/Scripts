@@ -59,7 +59,8 @@ eval set -- "$ARGS";                           # set parameters to preprocessed 
 
 # defaults
 VERBOSE=''
-DIR=''
+TARGETDIR=''
+SOURCEDIR=~
 
 # read config file
 if [[ -r $RCFILE ]]; then
@@ -90,7 +91,7 @@ while [[ $# -gt 0 ]]; do
             echo "thats an unknown parameter: '$1'"
             ;;
         *)
-            DIR=$1
+            TARGETDIR=$1
     esac
     shift
 done
@@ -99,21 +100,21 @@ done
 # checking parameters
 #
 
-if [[ -z $DIR ]]; then
+if [[ -z $TARGETDIR ]]; then
     help
     echo "ERROR: No directory provided!"
     echo
     exit 1
 fi
-if [[ ! -d $DIR ]]; then
+if [[ ! -d $TARGETDIR ]]; then
     help
-    echo "ERROR: Directory '$DIR' does not exist!"
+    echo "ERROR: Directory '$TARGETDIR' does not exist!"
     echo
     exit 1
 fi
-if [[ ! -w $DIR ]]; then
+if [[ ! -w $TARGETDIR ]]; then
     help
-    echo "ERROR: Directory '$DIR' is not writeable!"
+    echo "ERROR: Directory '$TARGETDIR' is not writeable!"
     echo
     exit 1
 fi
@@ -131,13 +132,16 @@ function log()
 #
 # display config (if verbose)
 #
+DIR_DATE=$TARGETDIR/${HOST}_$(date +"%Y_%m_%d")/
 if [[ $VERBOSE ]]; then
     echo
     echo "/-----[ current config ]---------"
     print_defconfig "| "
     echo "| HOST='$HOST' "
-    echo "| DIR='$DIR' "
+    echo "| SOURCEDIR='$SOURCEDIR' "
+    echo "| TARGETDIR='$TARGETDIR' "
     echo "| LOGFILE='$LOGFILE' "
+    echo "| DIR_DATE='$DIR_DATE' "
     echo "\--------------------------------"
     sleep 2
 fi
@@ -148,10 +152,9 @@ exit
 
 
 STARTTIME=$(date +%T)
-log "Starting backup at $STARTTIME to $DIR"
+log "Starting backup at $STARTTIME to $TARGETDIR"
 
 
-DIR_DATE=$DIR/${HOST}_$(date +"%Y_%m_%d")/
 if [ -d $DIR_DATE ]; then
     log Directory $DIR_DATE exists, skipping full backup, doing only rsync.
     # TODO : rsync of Home-Dir
@@ -168,9 +171,9 @@ fi
 if [[ $HOST = venus ]]; then
     RSYNC_OPTIONS="-art --fuzzy --delete-delay $VERBOSE "
     log "Starting rsync bilder at $(date +%F_%H-%M-%S)"
-    rsync $RSYNC_OPTIONS /home/bilder/ $DIR/bilder
+    rsync $RSYNC_OPTIONS /home/bilder/ $TARGETDIR/bilder
     log "Starting rsync musik at $(date +%F_%H-%M-%S)"
-    rsync $RSYNC_OPTIONS /home/musik/lokal/ $DIR/musik
+    rsync $RSYNC_OPTIONS /home/musik/lokal/ $TARGETDIR/musik
 else
     log "Skipping rsync bilder and musik"
 fi
@@ -179,8 +182,8 @@ fi
 
 
 log Backup finished. "($STARTTIME .. $(date +%T))"
-du -sh $DIR/* 2>/dev/null | tee -a $LOGFILE
+du -sh $TARGETDIR/* 2>/dev/null | tee -a $LOGFILE
 
-mkdir -p $DIR/log
-cp $LOGFILE $DIR/log/
+mkdir -p $TARGETDIR/log
+cp $LOGFILE $TARGETDIR/log/
 
