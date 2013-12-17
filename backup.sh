@@ -27,7 +27,6 @@
 #  - Blacklist : directories not to include in backup (.thumbnails, Downloads, ...)
 #
 
-VERBOSE=-v
 
 HOST=$(hostname)
 #[[ $(hostname). =~ ([a-zA-Z0-9]*)\..* ]]
@@ -35,7 +34,68 @@ HOST=$(hostname)
 HOST=${HOST%%.*}    # remove longest match to '.*' (file pattern, not regex!) from end
 
 
+function help()
+{
+    echo ""
+    echo "backup.sh"
+    echo "  Backup script to save \$HOME to an external USB hard drive"
+    echo "  Mount USB drive somewhere, then call backup.sh /mnt/usb"
+    echo "Usage:"
+    echo "  $0 [options] <path/to/drive>"
+    echo "       -c   --config   print default config to stdout"
+    echo "                       (store as ~/.backupsh.rc)"
+    echo "       -h   --help     help"
+    echo "       -v   --verbose  print what's happening"
+    echo ""
+    echo ""
+    echo ""
+}
 
+
+ARGS=$(getopt -o 'chv' -l 'config,help,verbose' -- "$@")   # parse parameters and store normalized string in $ARGS
+eval set -- "$ARGS";                           # set parameters to preprocessed string $ARGS
+
+# defaults
+VERBOSE=''
+
+function print_defconfig()
+{
+    echo $1"VERBOSE='$VERBOSE'"
+}
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -c|--config)
+            print_defconfig ''
+            exit
+            ;;
+        -h|--help)
+            help
+            exit
+            ;;
+        -v|--verbose)
+            VERBOSE=-v
+            ;;
+        --)
+            ;;
+        *)
+            echo "thats an unknown parameter: '$1'"
+    esac
+    shift
+done
+
+
+if [[ $VERBOSE ]]; then
+    echo
+    echo "/-----[ current config ]---------"
+    print_defconfig "| "
+    echo "| HOST='$HOST' "
+    echo "|  "
+    echo "\--------------------------------"
+    sleep 2
+fi
+
+exit
 
 #
 # Helper function to log into file and to screen
