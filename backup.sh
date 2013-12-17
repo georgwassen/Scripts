@@ -27,6 +27,8 @@
 #  - Blacklist : directories not to include in backup (.thumbnails, Downloads, ...)
 #
 
+RCFILE=~/.backupsh.rc
+
 
 HOST=$(hostname)
 #[[ $(hostname). =~ ([a-zA-Z0-9]*)\..* ]]
@@ -43,7 +45,7 @@ function help()
     echo "Usage:"
     echo "  $0 [options] <path/to/drive>"
     echo "       -c   --config   print default config to stdout"
-    echo "                       (store as ~/.backupsh.rc)"
+    echo "                       (store as ${RCFILE})"
     echo "       -h   --help     help"
     echo "       -v   --verbose  print what's happening"
     echo ""
@@ -57,6 +59,12 @@ eval set -- "$ARGS";                           # set parameters to preprocessed 
 
 # defaults
 VERBOSE=''
+
+
+# read config file
+if [[ -r $RCFILE ]]; then
+    source $RCFILE
+fi
 
 function print_defconfig()
 {
