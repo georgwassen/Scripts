@@ -110,17 +110,37 @@ function psterm ()
 #
 # set prompt
 #
+COLOR=1
+if [[ $COLOR -gt 0 ]]; then
+    PROMPT_GREEN='\[\033[01;32m\]'
+    PROMPT_BLUE='\[\033[01;34m\]'
+    PROMPT_YELLOW='\[\033[01;33m\]'
+    PROMPT_RESET='\[\033[00m\]'
+else
+    PROMPT_GREEN=''
+    PROMPT_BLUE=''
+    PROMPT_YELLOW=''
+    PROMPT_RESET=''
+fi
+
 if [ x"$WINDOW" != x ]; then
     # whithin a screen session
-    SCREEN=" (screen: $WINDOW) "
+    SCREEN=$PROMPT_YELLOW" (screen: $WINDOW) "
 else
     # not a screen session
-    SCREEN=""
+    SCREEN=''
 fi
+
 #export PS1="\u@\h:\w$SCREEN\$ "
-# from: http://www.bramschoenmakers.nl/en/node/624
-# (requires bash_completion (Git bash completion scripts)
-export PS1='\[\033[01;32m\]\u@\h\[\033[01;34m\] \w\[\033[01;33m\]$(__git_ps1)\[\033[01;34m\] \$\[\033[00m\] '
+
+if type __git_ps1 2> /dev/null; then
+    # from: http://www.bramschoenmakers.nl/en/node/624
+    # (requires bash_completion (Git bash completion scripts)
+    export PS1=$PROMPT_GREEN'\u@\h'$PROMPT_BLUE' \w'${SCREEN}$PROMPT_YELLOW'$(__git_ps1)'$PROMPT_BLUE' \$ '$PROMPT_RESET
+else
+    #export PS1="\u@\h:\w$SCREEN\$ "
+    export PS1=$PROMPT_GREEN'\u@\h'$PROMPT_BLUE' \w'${SCREEN}$PROMPT_BLUE' \$ '$PROMPT_RESET
+fi
 
 #
 # settings only for LfBS account (domain of hostname is lfbs)
