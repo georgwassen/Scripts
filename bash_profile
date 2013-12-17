@@ -133,7 +133,7 @@ fi
 
 #export PS1="\u@\h:\w$SCREEN\$ "
 
-if type __git_ps1 2> /dev/null; then
+if type __git_ps1 2>&1 > /dev/null; then
     # from: http://www.bramschoenmakers.nl/en/node/624
     # (requires bash_completion (Git bash completion scripts)
     export PS1=$PROMPT_GREEN'\u@\h'$PROMPT_BLUE' \w'${SCREEN}$PROMPT_YELLOW'$(__git_ps1)'$PROMPT_BLUE' \$ '$PROMPT_RESET
