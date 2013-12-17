@@ -29,8 +29,11 @@
 
 VERBOSE=-v
 
-[[ $(hostname). =~ ([a-zA-Z0-9]*)\..* ]]
-HOST=${BASH_REMATCH[1]}
+HOST=$(hostname)
+#[[ $(hostname). =~ ([a-zA-Z0-9]*)\..* ]]
+#HOST=${BASH_REMATCH[1]}
+HOST=${HOST%%.*}    # remove longest match to '.*' (file pattern, not regex!) from end
+
 
 
 
