@@ -48,6 +48,7 @@ function help()
     echo "                         or multiple occurences, 'quote' special characters)"
     echo "       -c   --config     print default config to stdout"
     echo "                         (store as ${RCFILE})"
+    echo "       -d   --dry-run    don't copy anything (hint: use /tmp as target dir)"
     echo "       -h   --help       help"
     echo "       -v   --verbose    print what's happening"
     echo ""
@@ -56,7 +57,7 @@ function help()
 }
 
 
-ARGS=$(getopt -o 'bchv' -l 'blacklist,config,help,verbose' -- "$@")   # parse parameters and store normalized string in $ARGS
+ARGS=$(getopt -o 'bcdhv' -l 'blacklist,config,dry-run,help,verbose' -- "$@")   # parse parameters and store normalized string in $ARGS
 eval set -- "$ARGS";                           # set parameters to preprocessed string $ARGS
 
 # defaults
@@ -64,6 +65,7 @@ BLACKLIST=''
 SOURCEDIR=~
 TARGETDIR=''
 VERBOSE=''
+DRY_RUN=0
 
 # read config file
 if [[ -r $RCFILE ]]; then
@@ -84,6 +86,9 @@ while [[ $# -gt 0 ]]; do
         -c|--config)
             print_defconfig ''
             exit
+            ;;
+        -d|--dry-run)
+            DRY_RUN=1
             ;;
         -h|--help)
             help
@@ -190,18 +195,32 @@ else
     #        -D               -- same as --devices --specials
     #        --devices        -- preserve device files (super-user only)
     #        --specials       -- preserve special files
-    rsync --archive $VERBOSE $EXCLUDE ${SOURCEDIR}/ $DIR_DATE
-
+    if [[ $DRY_RUN -eq 0 ]]; then
+        rsync --archive $VERBOSE $EXCLUDE ${SOURCEDIR}/ $DIR_DATE
+    else
+        echo "DRY-RUN: rsync --archive $VERBOSE $EXCLUDE ${SOURCEDIR}/ $DIR_DATE"
+    fi
 fi
 
 
 
 if [[ $HOST = venus ]]; then
     RSYNC_OPTIONS="-art --fuzzy --delete-delay $VERBOSE "
-    log "Starting rsync bilder at $(date +%F_%H-%M-%S)"
-    rsync $RSYNC_OPTIONS /home/bilder/ $TARGETDIR/bilder
-    log "Starting rsync musik at $(date +%F_%H-%M-%S)"
-    rsync $RSYNC_OPTIONS /home/musik/lokal/ $TARGETDIR/musik
+    if [[ $DRY_RUN -eq 0 ]]; then
+        log "Starting rsync bilder at $(date +%F_%H-%M-%S)"
+        rsync $RSYNC_OPTIONS /home/bilder/ $TARGETDIR/bilder
+    else
+        log "DRY-RUN: Starting rsync bilder at $(date +%F_%H-%M-%S)"
+        echo "DRY-RUN: rsync $RSYNC_OPTIONS /home/bilder/ $TARGETDIR/bilder"
+    fi
+
+    if [[ $DRY_RUN -eq 0 ]]; then
+        log "Starting rsync musik at $(date +%F_%H-%M-%S)"
+        rsync $RSYNC_OPTIONS /home/musik/lokal/ $TARGETDIR/musik
+    else
+        log "DRY-RUN: Starting rsync musik at $(date +%F_%H-%M-%S)"
+        echo "DRY-RUN: rsync $RSYNC_OPTIONS /home/musik/lokal/ $TARGETDIR/musik"
+    fi
 else
     log "Skipping rsync bilder and musik"
 fi
