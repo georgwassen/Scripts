@@ -163,7 +163,27 @@ else
     mkdir $DIR_DATE
 
     # 2012-05-04: add --no-dereference
-    cp --archive --no-dereference $VERBOSE /home/georg $DIR_DATE
+    #cp --archive --no-dereference $VERBOSE /home/georg $DIR_DATE
+    # 2013-12-17: use rsync to allow a blacklist of directories
+    #  cp arguments:
+    #        --archive        -- same as -dR --preserve=all
+    #        -d               -- same as --no-dereference --preserve=links
+    #        -R               -- recursive
+    #        --preserve=all   -- preserve file attributes
+    #        --no-dereference -- never follow symbolic links
+    #  rsync arguments:
+    #        --archive        -- same as -rlptgoD
+    #        -r               -- recursive
+    #        -l               -- copy symlinks as symlinks
+    #        -p               -- preserve permissions
+    #        -t               -- preserve modification times
+    #        -g               -- preserve group
+    #        -o               -- preserve owner
+    #        -D               -- same as --devices --specials
+    #        --devices        -- preserve device files (super-user only)
+    #        --specials       -- preserve special files
+    rsync --archive $VERBOSE ${SOURCEDIR}/ $DIR_DATE
+
 fi
 
 
