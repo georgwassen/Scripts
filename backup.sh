@@ -44,23 +44,26 @@ function help()
     echo "  Mount USB drive somewhere, then call backup.sh /mnt/usb"
     echo "Usage:"
     echo "  $0 [options] <path/to/drive>"
-    echo "       -c   --config   print default config to stdout"
-    echo "                       (store as ${RCFILE})"
-    echo "       -h   --help     help"
-    echo "       -v   --verbose  print what's happening"
+    echo "       -b   --blacklist  exclude patterns for home dir (separated by space"
+    echo "                         or multiple occurences, 'quote' special characters)"
+    echo "       -c   --config     print default config to stdout"
+    echo "                         (store as ${RCFILE})"
+    echo "       -h   --help       help"
+    echo "       -v   --verbose    print what's happening"
     echo ""
     echo ""
     echo ""
 }
 
 
-ARGS=$(getopt -o 'chv' -l 'config,help,verbose' -- "$@")   # parse parameters and store normalized string in $ARGS
+ARGS=$(getopt -o 'bchv' -l 'blacklist,config,help,verbose' -- "$@")   # parse parameters and store normalized string in $ARGS
 eval set -- "$ARGS";                           # set parameters to preprocessed string $ARGS
 
 # defaults
-VERBOSE=''
-TARGETDIR=''
+BLACKLIST=''
 SOURCEDIR=~
+TARGETDIR=''
+VERBOSE=''
 
 # read config file
 if [[ -r $RCFILE ]]; then
@@ -70,10 +73,14 @@ fi
 function print_defconfig()
 {
     echo $1"VERBOSE='$VERBOSE'"
+    echo $1"BLACKLIST='$BLACKLIST'"
 }
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
+        -b|--blacklist)
+            BLACKLIST="$BLACKLIST $1"
+            ;;
         -c|--config)
             print_defconfig ''
             exit
@@ -146,8 +153,6 @@ if [[ $VERBOSE ]]; then
     sleep 2
 fi
 
-exit
-
 
 
 
@@ -162,6 +167,9 @@ else
     log Using directory: $DIR_DATE
     mkdir $DIR_DATE
 
+    for PATTERN in $BLACKLIST; do
+        EXCLUDE="$EXCLUDE --exclude '$PATTERN'"
+    done
     # 2012-05-04: add --no-dereference
     #cp --archive --no-dereference $VERBOSE /home/georg $DIR_DATE
     # 2013-12-17: use rsync to allow a blacklist of directories
@@ -182,7 +190,7 @@ else
     #        -D               -- same as --devices --specials
     #        --devices        -- preserve device files (super-user only)
     #        --specials       -- preserve special files
-    rsync --archive $VERBOSE ${SOURCEDIR}/ $DIR_DATE
+    rsync --archive $VERBOSE $EXCLUDE ${SOURCEDIR}/ $DIR_DATE
 
 fi
 
