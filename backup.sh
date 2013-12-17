@@ -59,7 +59,7 @@ eval set -- "$ARGS";                           # set parameters to preprocessed 
 
 # defaults
 VERBOSE=''
-
+DIR=''
 
 # read config file
 if [[ -r $RCFILE ]]; then
@@ -86,24 +86,37 @@ while [[ $# -gt 0 ]]; do
             ;;
         --)
             ;;
-        *)
+        -*)
             echo "thats an unknown parameter: '$1'"
+            ;;
+        *)
+            DIR=$1
     esac
     shift
 done
 
+#
+# checking parameters
+#
 
-if [[ $VERBOSE ]]; then
+if [[ -z $DIR ]]; then
+    help
+    echo "ERROR: No directory provided!"
     echo
-    echo "/-----[ current config ]---------"
-    print_defconfig "| "
-    echo "| HOST='$HOST' "
-    echo "|  "
-    echo "\--------------------------------"
-    sleep 2
+    exit 1
 fi
-
-exit
+if [[ ! -d $DIR ]]; then
+    help
+    echo "ERROR: Directory '$DIR' does not exist!"
+    echo
+    exit 1
+fi
+if [[ ! -w $DIR ]]; then
+    help
+    echo "ERROR: Directory '$DIR' is not writeable!"
+    echo
+    exit 1
+fi
 
 #
 # Helper function to log into file and to screen
@@ -116,18 +129,23 @@ function log()
 
 
 #
-# checking parameters
+# display config (if verbose)
 #
-if [ $# -lt 1 ]; then
-    echo Usage: $0 '<target dir>'
-    exit 1
+if [[ $VERBOSE ]]; then
+    echo
+    echo "/-----[ current config ]---------"
+    print_defconfig "| "
+    echo "| HOST='$HOST' "
+    echo "| DIR='$DIR' "
+    echo "| LOGFILE='$LOGFILE' "
+    echo "\--------------------------------"
+    sleep 2
 fi
 
-DIR=$1
-if [ ! -d $DIR ]; then
-    echo Directory $DIR does not exist!
-    exit 1
-fi
+exit
+
+
+
 
 STARTTIME=$(date +%T)
 log "Starting backup at $STARTTIME to $DIR"
