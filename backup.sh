@@ -44,28 +44,30 @@ function help()
     echo "  Mount USB drive somewhere, then call backup.sh /mnt/usb"
     echo "Usage:"
     echo "  $0 [options] <path/to/drive>"
-    echo "       -b   --blacklist  exclude patterns for home dir (separated by space"
-    echo "                         or multiple occurences, 'quote' special characters)"
-    echo "       -c   --config     print default config to stdout"
-    echo "                         (store as ${RCFILE})"
-    echo "       -d   --dry-run    don't copy anything (hint: use /tmp as target dir)"
-    echo "       -h   --help       help"
-    echo "       -r   --repo       directory with repository checkouts"
-    echo "       -s   --rsync      directory to rsync (incremental backup)"
-    echo "       -v   --verbose    print what's happening"
-    echo ""
-    echo ""
+    echo "       -b B --blacklist=B  exclude patterns for home dir (separated by space"
+    echo "                           or multiple occurences, 'quote' special characters)"
+    echo "       -c   --config       print default config to stdout"
+    echo "                           (store as ${RCFILE})"
+    echo "       -d   --dry-run      don't copy anything (hint: use /tmp as target dir)"
+    echo "       -h   --help         help"
+    echo "       -l L --log-dir=L    directory for log file"
+    echo "       -r R --repo=R       directory with repository checkouts"
+    echo "       -s S --rsync=S      directory to rsync (incremental backup)"
+    echo "       -v   --verbose      print what's happening"
+    echo "       B,R          space-separated lists of patterns or directories"
+    echo "       S            space-sep. list of TARGET=SOURCE pairs"
     echo ""
 }
 
 
-ARGS=$(getopt -o 'bcdhv' -l 'blacklist,config,dry-run,help,verbose' -- "$@")   # parse parameters and store normalized string in $ARGS
+ARGS=$(getopt -o 'bcdhl:r:s:v' -l 'blacklist,config,dry-run,help,log-dir:,repo:,rsync:,verbose' -- "$@")   # parse parameters and store normalized string in $ARGS
 eval set -- "$ARGS";                           # set parameters to preprocessed string $ARGS
 
 # defaults
 BLACKLIST=''    # space separated list, e.g. 'checkout tmp'
 REPO_DIRS=''    # space separated list, supported: Subversion, Git
 RSYNC_DIRS=''   # space separated list of target=source pairs, e.g. 'musik=/home/musik bilder=~/Bilder'
+LOGDIR=~/log
 SOURCEDIR=~
 TARGETDIR=''
 VERBOSE=''
@@ -80,7 +82,10 @@ function print_defconfig()
 {
     # optional first argument: prefix for printed lines
     echo $1"VERBOSE='$VERBOSE'"
+    echo $1"LOGDIR='$LOGDIR'"
     echo $1"BLACKLIST='$BLACKLIST'"
+    echo $1"REPO_DIRS='$REPO_DIRS'"
+    echo $1"RSYNC_DIRS='$RSYNC_DIRS'"
 }
 
 while [[ $# -gt 0 ]]; do
@@ -99,11 +104,17 @@ while [[ $# -gt 0 ]]; do
             help
             exit
             ;;
+        -l|--log-dir)
+            LOGDIR="$1"
+            shift
+            ;;
         -r|--repo)
             REPO_DIRS="$REPO_DIRS $1"
+            shift
             ;;
         -s|--rsync)
             RSYNC_DIRS="$RSYNC_DIRS $1"
+            shift
             ;;
         -v|--verbose)
             VERBOSE=-v
@@ -145,7 +156,7 @@ fi
 #
 # Helper function to log into file and to screen
 #
-LOGFILE=$PWD/backup_${HOST}_$(date +%F_%H-%M-%S).log
+LOGFILE=$LOGDIR/backup_${HOST}_$(date +%F_%H-%M-%S).log
 function log()
 {
     echo $* | tee -a $LOGFILE
