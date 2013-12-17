@@ -206,8 +206,8 @@ fi
 log "Finished with home at $(date +%T)"
 
 
+RSYNC_OPTIONS="-art --fuzzy --delete-delay $VERBOSE "
 if [[ $HOST = venus ]]; then
-    RSYNC_OPTIONS="-art --fuzzy --delete-delay $VERBOSE "
     if [[ $DRY_RUN -eq 0 ]]; then
         log "Starting rsync bilder at $(date +%F_%H-%M-%S)"
         rsync $RSYNC_OPTIONS /home/bilder/ $TARGETDIR/bilder
@@ -224,11 +224,21 @@ if [[ $HOST = venus ]]; then
         echo "DRY-RUN: rsync $RSYNC_OPTIONS /home/musik/lokal/ $TARGETDIR/musik"
     fi
 elif [[ $HOST = saturn ]]; then
-    RSYNC_OPTIONS="-art --fuzzy --delete-delay $VERBOSE "
-    log "Starting rsync bilder at $(date +%F_%H-%M-%S)"
-    rsync $RSYNC_OPTIONS ~/bilder/ $DIR/bilder
-    log "Starting rsync musik at $(date +%F_%H-%M-%S)"
-    rsync $RSYNC_OPTIONS ~/Musik/lokal/ $DIR/musik
+    if [[ $DRY_RUN -eq 0 ]]; then
+        log "Starting rsync bilder at $(date +%F_%H-%M-%S)"
+        rsync $RSYNC_OPTIONS ~/bilder/ $DIR/bilder
+    else
+        log "DRY-RUN: Starting rsync bilder at $(date +%F_%H-%M-%S)"
+        echo "DRY-RUN: rsync $RSYNC_OPTIONS ~/bilder/ $DIR/bilder"
+    fi
+
+    if [[ $DRY_RUN -eq 0 ]]; then
+        log "Starting rsync musik at $(date +%F_%H-%M-%S)"
+        rsync $RSYNC_OPTIONS ~/Musik/lokal/ $DIR/musik
+    else
+        log "DRY-RUN: Starting rsync musik at $(date +%F_%H-%M-%S)"
+        echo "DRY-RUN: rsync $RSYNC_OPTIONS ~/Musik/lokal/ $DIR/musik"
+    fi
 else
     log "Skipping rsync bilder and musik"
 fi
