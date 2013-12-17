@@ -231,6 +231,7 @@ log "Finished with home at $(date +%T)"
 #
 # log content of REPO_DIRS (which Git and Subversion repos are there?)
 #
+log "Starting repo handling for $REPO_DIRS at $(date +%T)"
 for D in $REPO_DIRS; do
     for R in $SOURCEDIR/$D/*; do
         if [[ -d $R ]]; then
@@ -248,11 +249,13 @@ for D in $REPO_DIRS; do
         fi
     done
 done
+log "Finished repo handling at $(date +%T)"
 
 
 #
 # rsync incremental dirs
 #
+log "Starting rsync for $RSYNC_DIRS at $(date +%T)"
 RSYNC_OPTIONS="-art --fuzzy --delete-delay $VERBOSE "
 for TOKEN in $RSYNC_DIRS; do
     TARGET=${TOKEN%%=*}
@@ -266,6 +269,7 @@ for TOKEN in $RSYNC_DIRS; do
         echo "DRY-RUN: rsync $RSYNC_OPTIONS $SOURCE/ $TARGETDIR/$TARGET"
     fi
 done
+log "Finished rsync at $(date +%T)"
 
 # previous settings:
 # venus:
@@ -280,6 +284,5 @@ done
 log Backup finished. "($STARTTIME .. $(date +%T))"
 du -sh $TARGETDIR/* 2>/dev/null | tee -a $LOGFILE
 
-mkdir -p $TARGETDIR/log
-cp $LOGFILE $TARGETDIR/log/
+cp $LOGFILE $TARGETDIR/
 
