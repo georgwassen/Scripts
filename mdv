@@ -1,0 +1,25 @@
+#!/bin/bash
+#===============================================================================
+#
+#          FILE:  mkv
+# 
+#         USAGE:  ./mkv
+# 
+#   DESCRIPTION:  markdown viewer
+# 
+#       OPTIONS:  ---
+#  REQUIREMENTS:  ---
+#          BUGS:  ---
+#         NOTES:  ---
+#        AUTHOR:  Georg Wassen (georg.wassen@googlemail.com), 
+#       COMPANY:  
+#       VERSION:  1.0
+#       CREATED:  11.12.2013 08:52:26 CET
+#      REVISION:  ---
+#===============================================================================
+
+
+discount-mkd2html -header "<meta charset='utf-8'>" $@
+
+
+
