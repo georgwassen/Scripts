@@ -18,6 +18,18 @@
 #      REVISION:  ---
 #===============================================================================
 
+# Utilities:
+#  markdown (F18:discount)
+#     $ markdown test.md > test-markdown.html
+#     - generates only the html body content
+#     - writes special characters (eg umlaut ä) 1:1 to the output
+#  markdown2 (F18:python-markdown2)
+#     $ markdown2 test.md > test-markdown2.html
+#     - generates only the html body content
+#     - writes special characters (eg umlaut ä) 1:1 to the output
+#     - does not know tables
+#  discount-makepage (F18:discount)
+#  discount-mkd2html (F18:discount)
 
 discount-mkd2html -header "<meta charset='utf-8'>" $@
 
