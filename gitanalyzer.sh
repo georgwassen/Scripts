@@ -29,7 +29,7 @@ function usage() {
     echo "  Parameters: "
     echo "    -h  --help       print this help message"
     echo "    -n  --no-color   don't use colors"
-    echo "    -v  --verbose    be more verbose"
+    echo "    -v  --verbose    be more verbose (increments)"
     echo
 }
 
@@ -89,7 +89,13 @@ fi
 # use echo_v1 to print only on verbose==1
 function echo_v1()
 {
-if [[ $PARAM_VERBOSE -ge 1 ]]; then
+if [[ $PARAM_VERBOSE -eq 1 ]]; then
+    echo "$@"
+fi
+}
+function echo_v2()
+{
+if [[ $PARAM_VERBOSE -ge 2 ]]; then
     echo "$@"
 fi
 }
@@ -129,19 +135,19 @@ stat -c '%Y %y %n' $DIR/.git/* | sort | head -n1 | awk '{print "'$COLDATE'" $2 "
 #   convert UNIX time stamp to readable format: date -d @1386429090 +'%Y-%m-%d %H:%M:%S'
 
 read REV0 REV1 REST < <(head -n1 $DIR/.git/logs/HEAD)
-echo_v1 "REV0   = '$REV0'"
-echo_v1 "REV1   = '$REV1'"
+echo_v2 "REV0   = '$REV0'"
+echo_v2 "REV1   = '$REV1'"
 NAME=${REST%% <*}
 #echo "NAME   = '$NAME'"
 REST=${REST##* <}
 MAIL=${REST%%>*}
-echo_v1 "MAIL   = '$MAIL'"
+echo_v2 "MAIL   = '$MAIL'"
 REST=${REST##*> }
 read TIME ZONE ACTION < <(echo $REST )
-echo_v1 "TIME   = '$TIME'"
-echo_v1 "ZONE   = '$ZONE'"
+echo_v2 "TIME   = '$TIME'"
+echo_v2 "ZONE   = '$ZONE'"
 DATE=$(date -d@$TIME  +'%Y-%m-%d %H:%M:%S')
-echo_v1 "ACTION = '$ACTION'"
+echo_v2 "ACTION = '$ACTION'"
 if [[ -z $ACTION ]]; then
     ACTION="git init"
 fi
@@ -151,19 +157,19 @@ echo -e "Source of this Repo: $COLACTION$ACTION$COLRESET on $COLDATE$DATE$COLRES
 
 
 read REV0 REV1 REST < <(tail -n1 $DIR/.git/logs/HEAD)
-echo_v1 "REV0   = '$REV0'"
-echo_v1 "REV1   = '$REV1'"
+echo_v2 "REV0   = '$REV0'"
+echo_v2 "REV1   = '$REV1'"
 NAME=${REST%% <*}
 #echo "NAME   = '$NAME'"
 REST=${REST##* <}
 MAIL=${REST%%>*}
-echo_v1 "MAIL   = '$MAIL'"
+echo_v2 "MAIL   = '$MAIL'"
 REST=${REST##*> }
 read TIME ZONE ACTION < <(echo $REST )
-echo_v1 "TIME   = '$TIME'"
-echo_v1 "ZONE   = '$ZONE'"
+echo_v2 "TIME   = '$TIME'"
+echo_v2 "ZONE   = '$ZONE'"
 DATE=$(date -d@$TIME  +'%Y-%m-%d %H:%M:%S')
-echo_v1 "ACTION = '$ACTION'"
+echo_v2 "ACTION = '$ACTION'"
 
 echo -e "Last action: $COLACTION$ACTION$COLRESET on $COLDATE$DATE$COLRESET by $NAME $MAIL"
 
@@ -179,19 +185,19 @@ for D in $DIR/.git/logs/refs/remotes/*; do
     REMSERVER=$(git remote -v | grep $REMOTE | cut  -f2 | cut -d' ' -f1 | sort | uniq)
     echo -e "History of $COLREMOTE$REMOTE ($REMSERVER)$COLRESET"
     while read rEV0 REV1 REST; do
-        echo_v1 "REV0   = '$REV0'"
-        echo_v1 "REV1   = '$REV1'"
+        echo_v2 "REV0   = '$REV0'"
+        echo_v2 "REV1   = '$REV1'"
         NAME=${REST%% <*}
         #echo "NAME   = '$NAME'"
         REST=${REST##* <}
         MAIL=${REST%%>*}
-        echo_v1 "MAIL   = '$MAIL'"
+        echo_v2 "MAIL   = '$MAIL'"
         REST=${REST##*> }
         read TIME ZONE ACTION < <(echo $REST )
-        echo_v1 "TIME   = '$TIME'"
-        echo_v1 "ZONE   = '$ZONE'"
+        echo_v2 "TIME   = '$TIME'"
+        echo_v2 "ZONE   = '$ZONE'"
         DATE=$(date -d@$TIME  +'%Y-%m-%d %H:%M:%S')
-        echo_v1 "ACTION = '$ACTION'"
+        echo_v2 "ACTION = '$ACTION'"
 
         echo -e "   $COLACTION$ACTION$COLRESET on $COLDATE$DATE$COLRESET by $NAME $MAIL"
 
