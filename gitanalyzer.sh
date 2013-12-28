@@ -35,14 +35,16 @@ function usage() {
     echo "  $(basename $0) [parameters] [<dir>]"
     echo "  Parameters: "
     echo "    -h  --help       print this help message"
+    echo "    -v  --verbose    be more verbose"
     echo
 }
 
 
-ARGS=$(getopt -o 'h' -l 'help' -- "$@")   # parse parameters and store normalized string in $ARGS
+ARGS=$(getopt -o 'hv' -l 'help,verbose' -- "$@")   # parse parameters and store normalized string in $ARGS
 eval set -- "$ARGS";                           # set parameters to preprocessed string $ARGS
 
 PARAM_WD=$PWD
+PARAM_VERBOSE=0
 
 while [[ $# -gt 0 ]]; do
     #echo "1='$1'"
@@ -50,6 +52,9 @@ while [[ $# -gt 0 ]]; do
         -h|--help)
             usage
             exit
+            ;;
+        -v|--verbose)
+            PARAM_VERBOSE=$(( PARAM_VERBOSE + 1 ))
             ;;
         #-e|--edit)
         #    PARAM_EDIT="gvim -p "
@@ -65,6 +70,13 @@ while [[ $# -gt 0 ]]; do
 done
 
 #echo "PARAM_WD='$PARAM_WD'"
+
+function echo_v1()
+{
+if [[ $PARAM_VERBOSE -ge 1 ]]; then
+    echo "$@"
+fi
+}
 
 
 cd $PARAM_WD
@@ -101,19 +113,19 @@ stat -c '%Y %y %n' $DIR/.git/* | sort | head -n1 | awk '{print "'$COLDATE'" $2 "
 #   convert UNIX time stamp to readable format: date -d @1386429090 +'%Y-%m-%d %H:%M:%S'
 
 read REV0 REV1 REST < <(head -n1 $DIR/.git/logs/HEAD)
-#echo "REV0   = '$REV0'"
-#echo "REV1   = '$REV1'"
+echo_v1 "REV0   = '$REV0'"
+echo_v1 "REV1   = '$REV1'"
 NAME=${REST%% <*}
 #echo "NAME   = '$NAME'"
 REST=${REST##* <}
 MAIL=${REST%%>*}
-#echo "MAIL   = '$MAIL'"
+echo_v1 "MAIL   = '$MAIL'"
 REST=${REST##*> }
 read TIME ZONE ACTION < <(echo $REST )
-#echo "TIME   = '$TIME'"
-#echo "ZONE   = '$ZONE'"
+echo_v1 "TIME   = '$TIME'"
+echo_v1 "ZONE   = '$ZONE'"
 DATE=$(date -d@$TIME  +'%Y-%m-%d %H:%M:%S')
-#echo "ACTION = '$ACTION'"
+echo_v1 "ACTION = '$ACTION'"
 if [[ -z $ACTION ]]; then
     ACTION="git init"
 fi
