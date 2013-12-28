@@ -132,6 +132,25 @@ fi
 
 echo -e "Source of this Repo: $COLACTION$ACTION$COLRESET on $COLDATE$DATE$COLRESET"
 
+
+
+read REV0 REV1 REST < <(tail -n1 $DIR/.git/logs/HEAD)
+echo_v1 "REV0   = '$REV0'"
+echo_v1 "REV1   = '$REV1'"
+NAME=${REST%% <*}
+#echo "NAME   = '$NAME'"
+REST=${REST##* <}
+MAIL=${REST%%>*}
+echo_v1 "MAIL   = '$MAIL'"
+REST=${REST##*> }
+read TIME ZONE ACTION < <(echo $REST )
+echo_v1 "TIME   = '$TIME'"
+echo_v1 "ZONE   = '$ZONE'"
+DATE=$(date -d@$TIME  +'%Y-%m-%d %H:%M:%S')
+echo_v1 "ACTION = '$ACTION'"
+
+echo -e "Last action: $COLACTION$ACTION$COLRESET on $COLDATE$DATE$COLRESET by $NAME $MAIL"
+
 # remote links
 echo -n "Remote links: "
 echo -en "$COLREMOTE"
