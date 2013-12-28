@@ -39,6 +39,10 @@ echo "using Git base dir '$DIR'"
 # try to derive the age (date of init or clone) from .git files
 # (use oldest file in .git directory)
 echo -n "init'ed or clone'd most probably on: "
-stat -c '%Y %y %n' $DIR/.git/* | sort | head -n1
+stat -c '%Y %y %n' $DIR/.git/* | sort | head -n1 | awk '{print $2 ($3)}'
+
+# remote links
+echo -n "Remote links: "
+git remote -v | cut  -f2 | cut -d' ' -f1 | sort | uniq
 
 
