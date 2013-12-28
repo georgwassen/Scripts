@@ -45,4 +45,8 @@ stat -c '%Y %y %n' $DIR/.git/* | sort | head -n1 | awk '{print $2 ($3)}'
 echo -n "Remote links: "
 git remote -v | cut  -f2 | cut -d' ' -f1 | sort | uniq
 
+# git-svn
+echo -n "Git-SVN info: "
+git svn info
+
 
