@@ -18,13 +18,6 @@
 #      REVISION:  ---
 #===============================================================================
 
-COLERROR='\033[1;31m'
-COLDIR='\033[1;34m'
-COLDATE='\033[1;33m'
-COLREMOTE='\033[1;31m'
-COLACTION='\033[1;36m'
-COLRESET='\033[0m'
-
 # parse command line arguments
 
 function usage() {
@@ -35,16 +28,18 @@ function usage() {
     echo "  $(basename $0) [parameters] [<dir>]"
     echo "  Parameters: "
     echo "    -h  --help       print this help message"
+    echo "    -n  --no-color   don't use colors"
     echo "    -v  --verbose    be more verbose"
     echo
 }
 
 
-ARGS=$(getopt -o 'hv' -l 'help,verbose' -- "$@")   # parse parameters and store normalized string in $ARGS
+ARGS=$(getopt -o 'hnv' -l 'help,no-color,verbose' -- "$@")   # parse parameters and store normalized string in $ARGS
 eval set -- "$ARGS";                           # set parameters to preprocessed string $ARGS
 
 PARAM_WD=$PWD
 PARAM_VERBOSE=0
+PARAM_COLOR=1
 
 while [[ $# -gt 0 ]]; do
     #echo "1='$1'"
@@ -52,6 +47,9 @@ while [[ $# -gt 0 ]]; do
         -h|--help)
             usage
             exit
+            ;;
+        -n|--no-color)
+            PARAM_COLOR=0
             ;;
         -v|--verbose)
             PARAM_VERBOSE=$(( PARAM_VERBOSE + 1 ))
@@ -68,6 +66,21 @@ while [[ $# -gt 0 ]]; do
     esac
     shift
 done
+
+if [[ $PARAM_COLOR -ge 1 ]]; then
+    COLERROR='\033[1;31m'
+    COLDIR='\033[1;34m'
+    COLDATE='\033[1;33m'
+    COLREMOTE='\033[1;31m'
+    COLACTION='\033[1;36m'
+    COLRESET='\033[0m'
+
+    # colors for git log --format
+    COLGITHASH='%C(yellow dim)'
+    COLGITDATE='%C(yellow bold)'
+    COLGITSUBJECT='%C(white bold)'
+    COLGITRESET='%Creset'
+fi
 
 #echo "PARAM_WD='$PARAM_WD'"
 
@@ -197,6 +210,6 @@ fi
 #  %s   subject
 #  %C.. color
 echo -n "Last commit: "
-git --no-pager log --all -n1 --format='%C(yellow dim)%h %C(yellow bold)%ci%Creset%d %C(white bold)%s%Creset' 
+git --no-pager log --all -n1 --format="${COLGITHASH}%h ${COLGITDATE}%ci${COLGITRESET}%d ${COLGITSUBJECT}%s${COLGITRESET}" 
 
 
