@@ -112,8 +112,11 @@ fi
 # last commit
 # formats:
 #  %h   abbreviated sha1 hash
+#  %ci  commit date (iso format)
 #  %d   decorate (ref names)
+#  %s   subject
+#  %C.. color
 echo -n "Last commit: "
-git --no-pager log --all -n1 --format='%C(yellow dim)%h%Creset %ci%d %C(white bold)%s%Creset' 
+git --no-pager log --all -n1 --format='%C(yellow dim)%h %C(yellow bold)%ci%Creset%d %C(white bold)%s%Creset' 
 
 
