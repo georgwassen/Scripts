@@ -133,8 +133,9 @@ stat -c '%Y %y %n' $DIR/.git/* | sort | head -n1 | awk '{print "'$COLDATE'" $2 "
 
 # short history (derived from .git/logs)
 #   convert UNIX time stamp to readable format: date -d @1386429090 +'%Y-%m-%d %H:%M:%S'
-
-read REV0 REV1 REST < <(head -n1 $DIR/.git/logs/HEAD)
+function tokenize_log()
+{
+read REV0 REV1 REST < <(echo "$@")
 echo_v2 "REV0   = '$REV0'"
 echo_v2 "REV1   = '$REV1'"
 NAME=${REST%% <*}
@@ -151,27 +152,21 @@ echo_v2 "ACTION = '$ACTION'"
 if [[ -z $ACTION ]]; then
     ACTION="git init"
 fi
+}
 
-echo -e "Source of this Repo: $COLACTION$ACTION$COLRESET on $COLDATE$DATE$COLRESET"
+if [[ $PARAM_VERBOSE -ge 1 ]]; then
+    echo -e "History of master"
+    while read LINE; do
+        tokenize_log "$LINE"
+        echo -e "   $COLACTION$ACTION$COLRESET on $COLDATE$DATE$COLRESET by $NAME $MAIL"
+    done < <(cat $DIR/.git/logs/refs/heads/master)
+else
+    tokenize_log $(head -n1 $DIR/.git/logs/HEAD)
+    echo -e "Source of this Repo: $COLACTION$ACTION$COLRESET on $COLDATE$DATE$COLRESET"
 
-
-
-read REV0 REV1 REST < <(tail -n1 $DIR/.git/logs/HEAD)
-echo_v2 "REV0   = '$REV0'"
-echo_v2 "REV1   = '$REV1'"
-NAME=${REST%% <*}
-#echo "NAME   = '$NAME'"
-REST=${REST##* <}
-MAIL=${REST%%>*}
-echo_v2 "MAIL   = '$MAIL'"
-REST=${REST##*> }
-read TIME ZONE ACTION < <(echo $REST )
-echo_v2 "TIME   = '$TIME'"
-echo_v2 "ZONE   = '$ZONE'"
-DATE=$(date -d@$TIME  +'%Y-%m-%d %H:%M:%S')
-echo_v2 "ACTION = '$ACTION'"
-
-echo -e "Last action: $COLACTION$ACTION$COLRESET on $COLDATE$DATE$COLRESET by $NAME $MAIL"
+    tokenize_log $(tail -n1 $DIR/.git/logs/HEAD)
+    echo -e "Last action: $COLACTION$ACTION$COLRESET on $COLDATE$DATE$COLRESET by $NAME $MAIL"
+fi
 
 # remote links
 echo  "Remote links: "
@@ -184,24 +179,18 @@ for D in $DIR/.git/logs/refs/remotes/*; do
     REMOTE=${D##*/}
     REMSERVER=$(git remote -v | grep $REMOTE | cut  -f2 | cut -d' ' -f1 | sort | uniq)
     echo -e "History of $COLREMOTE$REMOTE ($REMSERVER)$COLRESET"
-    while read rEV0 REV1 REST; do
-        echo_v2 "REV0   = '$REV0'"
-        echo_v2 "REV1   = '$REV1'"
-        NAME=${REST%% <*}
-        #echo "NAME   = '$NAME'"
-        REST=${REST##* <}
-        MAIL=${REST%%>*}
-        echo_v2 "MAIL   = '$MAIL'"
-        REST=${REST##*> }
-        read TIME ZONE ACTION < <(echo $REST )
-        echo_v2 "TIME   = '$TIME'"
-        echo_v2 "ZONE   = '$ZONE'"
-        DATE=$(date -d@$TIME  +'%Y-%m-%d %H:%M:%S')
-        echo_v2 "ACTION = '$ACTION'"
+    if [[ $PARAM_VERBOSE -ge 1 ]]; then
+        while read LINE; do
+            tokenize_log "$LINE"
+            echo -e "   $COLACTION$ACTION$COLRESET on $COLDATE$DATE$COLRESET by $NAME $MAIL"
+        done < <(cat $D/master)
+    else
+        tokenize_log $(head -n1 $D/master)
+        echo -e "  First action: $COLACTION$ACTION$COLRESET on $COLDATE$DATE$COLRESET"
 
-        echo -e "   $COLACTION$ACTION$COLRESET on $COLDATE$DATE$COLRESET by $NAME $MAIL"
-
-    done < <(cat $D/master)
+        tokenize_log $(tail -n1 $D/master)
+        echo -e "  Last action: $COLACTION$ACTION$COLRESET on $COLDATE$DATE$COLRESET by $NAME $MAIL"
+    fi
 done
 
 
