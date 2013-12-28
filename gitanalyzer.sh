@@ -152,10 +152,36 @@ echo_v1 "ACTION = '$ACTION'"
 echo -e "Last action: $COLACTION$ACTION$COLRESET on $COLDATE$DATE$COLRESET by $NAME $MAIL"
 
 # remote links
-echo -n "Remote links: "
-echo -en "$COLREMOTE"
-git remote -v | cut  -f1-2 | cut -d' ' -f1 | sort | uniq
-echo -en "$COLRESET"
+echo  "Remote links: "
+#echo -en "$COLREMOTE"
+#git remote -v | cut  -f1-2 | cut -d' ' -f1 | sort | uniq
+#echo -en "$COLRESET"
+
+
+for D in $DIR/.git/logs/refs/remotes/*; do
+    REMOTE=${D##*/}
+    REMSERVER=$(git remote -v | grep $REMOTE | cut  -f2 | cut -d' ' -f1 | sort | uniq)
+    echo -e "History of $COLREMOTE$REMOTE ($REMSERVER)$COLRESET"
+    while read rEV0 REV1 REST; do
+        echo_v1 "REV0   = '$REV0'"
+        echo_v1 "REV1   = '$REV1'"
+        NAME=${REST%% <*}
+        #echo "NAME   = '$NAME'"
+        REST=${REST##* <}
+        MAIL=${REST%%>*}
+        echo_v1 "MAIL   = '$MAIL'"
+        REST=${REST##*> }
+        read TIME ZONE ACTION < <(echo $REST )
+        echo_v1 "TIME   = '$TIME'"
+        echo_v1 "ZONE   = '$ZONE'"
+        DATE=$(date -d@$TIME  +'%Y-%m-%d %H:%M:%S')
+        echo_v1 "ACTION = '$ACTION'"
+
+        echo -e "   $COLACTION$ACTION$COLRESET on $COLDATE$DATE$COLRESET by $NAME $MAIL"
+
+    done < <(cat $D/master)
+done
+
 
 # git-svn
 SVNINFO=$(git svn info 2>&1)
