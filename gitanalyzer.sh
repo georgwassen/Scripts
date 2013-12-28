@@ -104,8 +104,10 @@ git remote -v | cut  -f2 | cut -d' ' -f1 | sort | uniq
 echo -en "$COLRESET"
 
 # git-svn
-echo -n "Git-SVN info: "
-git svn info
+SVNINFO=$(git svn info 2>&1)
+if [[ ! "$SVNINFO" =~ ^Unable ]]; then
+    echo -n "Git-SVN info: " $SVNINFO
+fi
 
 # last commit
 # formats:
