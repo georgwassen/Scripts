@@ -11,7 +11,7 @@
 #  REQUIREMENTS:  ---
 #          BUGS:  ---
 #         NOTES:  ---
-#        AUTHOR:   (), 
+#        AUTHOR:  Georg Wassen (georg.wassen@googlemail.com), 
 #       COMPANY:  
 #       VERSION:  1.0
 #       CREATED:  28.12.2013 12:20:22 CET
@@ -94,5 +94,12 @@ git remote -v | cut  -f2 | cut -d' ' -f1 | sort | uniq
 # git-svn
 echo -n "Git-SVN info: "
 git svn info
+
+# last commit
+# formats:
+#  %h   abbreviated sha1 hash
+#  %d   decorate (ref names)
+echo -n "Last commit: "
+git --no-pager log --all -n1 --format='%C(yellow dim)%h%Creset %ci%d %C(white bold)%s%Creset' 
 
 
