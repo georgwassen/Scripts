@@ -67,6 +67,7 @@ while [[ $# -gt 0 ]]; do
     shift
 done
 
+# set colors (leave empty to deactivate)
 if [[ $PARAM_COLOR -ge 1 ]]; then
     COLERROR='\033[1;31m'
     COLDIR='\033[1;34m'
@@ -84,6 +85,8 @@ fi
 
 #echo "PARAM_WD='$PARAM_WD'"
 
+
+# use echo_v1 to print only on verbose==1
 function echo_v1()
 {
 if [[ $PARAM_VERBOSE -ge 1 ]]; then
@@ -112,13 +115,13 @@ if [[ -z $DIR ]]; then
     exit
 fi
 
-echo -e "using Git base dir $COLDIR'$DIR'$COLRESET"
+echo -e "Using Git base dir $COLDIR'$DIR'$COLRESET"
 
 
 
 # try to derive the age (date of init or clone) from .git files
 # (use oldest file in .git directory)
-echo -n "init'ed or clone'd most probably on: "
+echo -n "Init'ed or clone'd most probably on: "
 stat -c '%Y %y %n' $DIR/.git/* | sort | head -n1 | awk '{print "'$COLDATE'" $2 " " $3  "'$COLRESET' (" $5 ")" }'
 
 
