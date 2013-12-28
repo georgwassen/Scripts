@@ -74,6 +74,7 @@ if [[ $PARAM_COLOR -ge 1 ]]; then
     COLDATE='\033[1;33m'
     COLREMOTE='\033[1;31m'
     COLACTION='\033[1;36m'
+    COLNOTE='\033[0;32m'
     COLRESET='\033[0m'
 
     # colors for git log --format
@@ -83,13 +84,11 @@ if [[ $PARAM_COLOR -ge 1 ]]; then
     COLGITRESET='%Creset'
 fi
 
-#echo "PARAM_WD='$PARAM_WD'"
-
 
 # use echo_v1 to print only on verbose==1
 function echo_v1()
 {
-if [[ $PARAM_VERBOSE -eq 1 ]]; then
+if [[ $PARAM_VERBOSE -ge 1 ]]; then
     echo "$@"
 fi
 }
@@ -99,6 +98,20 @@ if [[ $PARAM_VERBOSE -ge 2 ]]; then
     echo "$@"
 fi
 }
+function echo_v3()
+{
+if [[ $PARAM_VERBOSE -ge 3 ]]; then
+    echo "$@"
+fi
+}
+
+
+
+echo_v3 "PARAM_WD='$PARAM_WD'"
+echo_v3 "PARAM_VERBOSE='$PARAM_VERBOSE'"
+echo_v3 "PARAM_COLOR='$PARAM_COLOR'"
+echo_v3
+
 
 
 cd $PARAM_WD
@@ -123,6 +136,9 @@ fi
 
 echo -e "Using Git base dir $COLDIR'$DIR'$COLRESET"
 
+echo_v2 -e "${COLNOTE}  NOTE: searched for '.git' directory backwards beginning from $PARAM_DIR$COLRESET"
+echo_v2
+
 
 
 # try to derive the age (date of init or clone) from .git files
@@ -130,29 +146,35 @@ echo -e "Using Git base dir $COLDIR'$DIR'$COLRESET"
 echo -n "Init'ed or clone'd most probably on: "
 stat -c '%Y %y %n' $DIR/.git/* | sort | head -n1 | awk '{print "'$COLDATE'" $2 " " $3  "'$COLRESET' (" $5 ")" }'
 
+echo_v2 -e "${COLNOTE}  NOTE: searched for oldest file or dir in .git (used file in parens)$COLRESET"
+echo_v2
+
+
+
 
 # short history (derived from .git/logs)
 #   convert UNIX time stamp to readable format: date -d @1386429090 +'%Y-%m-%d %H:%M:%S'
 function tokenize_log()
 {
-read REV0 REV1 REST < <(echo "$@")
-echo_v2 "REV0   = '$REV0'"
-echo_v2 "REV1   = '$REV1'"
-NAME=${REST%% <*}
-#echo "NAME   = '$NAME'"
-REST=${REST##* <}
-MAIL=${REST%%>*}
-echo_v2 "MAIL   = '$MAIL'"
-REST=${REST##*> }
-read TIME ZONE ACTION < <(echo $REST )
-echo_v2 "TIME   = '$TIME'"
-echo_v2 "ZONE   = '$ZONE'"
-DATE=$(date -d@$TIME  +'%Y-%m-%d %H:%M:%S')
-echo_v2 "ACTION = '$ACTION'"
-if [[ -z $ACTION ]]; then
-    ACTION="git init"
-fi
+    read REV0 REV1 REST < <(echo "$@")
+    echo_v3 "REV0   = '$REV0'"
+    echo_v3 "REV1   = '$REV1'"
+    NAME=${REST%% <*}
+    echo_v3 "NAME   = '$NAME'"
+    REST=${REST##* <}
+    MAIL=${REST%%>*}
+    echo_v3 "MAIL   = '$MAIL'"
+    REST=${REST##*> }
+    read TIME ZONE ACTION < <(echo $REST )
+    echo_v3 "TIME   = '$TIME'"
+    echo_v3 "ZONE   = '$ZONE'"
+    DATE=$(date -d@$TIME  +'%Y-%m-%d %H:%M:%S')
+    echo_v3 "ACTION = '$ACTION'"
+    if [[ -z $ACTION ]]; then
+        ACTION="git init"
+    fi
 }
+
 
 if [[ $PARAM_VERBOSE -ge 1 ]]; then
     echo -e "History of master"
@@ -167,6 +189,12 @@ else
     tokenize_log $(tail -n1 $DIR/.git/logs/HEAD)
     echo -e "Last action: $COLACTION$ACTION$COLRESET on $COLDATE$DATE$COLRESET by $NAME $MAIL"
 fi
+
+echo_v2 -e "${COLNOTE}  NOTE: from file .git/logs/HEAD$COLRESET"
+echo_v2
+
+
+
 
 # remote links
 echo  "Remote links: "
@@ -193,11 +221,17 @@ for D in $DIR/.git/logs/refs/remotes/*; do
     fi
 done
 
+echo_v2 -e "${COLNOTE}  NOTE: from files .git/logs/refs/remotes/ $COLRESET"
+echo_v2
+
+
 
 # git-svn
 SVNINFO=$(git svn info 2>&1)
 if [[ ! "$SVNINFO" =~ ^Unable ]]; then
     echo -n "Git-SVN info: " $SVNINFO
+    echo_v2 -e "${COLNOTE}  NOTE: from git-svn-info $COLRESET"
+    echo_v2
 fi
 
 # last commit
@@ -209,5 +243,7 @@ fi
 #  %C.. color
 echo -n "Last commit: "
 git --no-pager log --all -n1 --format="${COLGITHASH}%h ${COLGITDATE}%ci${COLGITRESET}%d ${COLGITSUBJECT}%s${COLGITRESET}" 
+echo_v2 -e "${COLNOTE}  NOTE: from git-log $COLRESET"
+echo_v2
 
 
