@@ -70,6 +70,7 @@ done
 # set colors (leave empty to deactivate)
 if [[ $PARAM_COLOR -ge 1 ]]; then
     COLERROR='\033[1;31m'
+    COLDESC='\033[1;37m'
     COLDIR='\033[1;34m'
     COLDATE='\033[1;33m'
     COLREMOTE='\033[1;31m'
@@ -139,6 +140,15 @@ echo -e "Using Git base dir $COLDIR'$DIR'$COLRESET"
 echo_v2 -e "${COLNOTE}  NOTE: searched for '.git' directory backwards beginning from $PARAM_DIR$COLRESET"
 echo_v2
 
+
+
+# show description (if not empty/default)
+if [[ -r $DIR/.git/description ]]; then
+    DESC=$(cat $DIR/.git/description)
+    if [[ ´$DESC && ! $DESC =~ Unnamed\ repository ]]; then
+        echo -e "$COLDESC$DESC$COLRESET"
+    fi
+fi
 
 
 # try to derive the age (date of init or clone) from .git files
