@@ -20,7 +20,7 @@ if [ _$TERM == _xterm -a _$DISPLAY != _ ]; then
 fi
 
 # append ~/bin and ~/scripts to PATH
-export PATH=~/scripts:$PATH:~/bin:~/bin/dmd/bin
+export PATH=~/scripts.git:~/scripts:$PATH:~/bin:~/bin/dmd/bin
 
 # set BASH keybindings and default editor to VIM
 set -o vi
