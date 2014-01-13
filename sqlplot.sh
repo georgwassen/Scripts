@@ -1,4 +1,5 @@
 #!/bin/bash
+# vim: ts=8
 
 ########################################################################
 #
@@ -32,7 +33,8 @@
 
 
 #VERSION="0.8 (LfBS branch) 13.7.2007"
-VERSION="0.9 (14.6.2013)"                 # add setting variables to database selects
+#VERSION="0.9 (14.6.2013)"                 # add setting variables to database selects
+VERSION="0.10 (13.1.2014)"                 # add column plot mode (cplot)
 
 
 
@@ -81,8 +83,8 @@ else
     fi
 fi
 
-TMPFILE=`mktemp`
-DATFILE=`mktemp`
+TMPFILE=sqlplot.tmpfile #`mktemp`
+DATFILE=sqlplot.datfile #`mktemp`
 GPFILE=sqlplot.gp
 HISTFILE='sqlplot.hist'
 SETFILE='sqlplot.settings'
@@ -145,6 +147,17 @@ function help() {
 	    echo '  The two rightmost columns are used for x and y values.'
 	    echo '  All previous columns are grouped to data series, their'
 	    echo '  output is used as data series title for the key.'
+	    ;;
+	'cplot')
+	    echo 'cplot - column-plot last SQL query and display on screen'
+	    echo 'cplot xxx.png - create png file'
+	    echo 'cplot xxx.jpeg- create jpeg file'
+	    echo 'cplot xxx.svg - create svg file'
+	    echo 'cplot xxx.ps  - create postscript file'
+	    echo 'cplot xxx.sp  - dont plot, but create sqlplot script to regenerate a plot'
+	    echo '  Similar to plot, but use leftmost column as x value'
+	    echo '  and all other columns as data series'
+	    echo '  with their column name as label.'
 	    ;;
 	'splot')
 	    echo 'splot - 3d-plot last SQL query and display on screen'
@@ -397,7 +410,25 @@ function tics() {
     fi
 }
 
+
+# GW 2014-01-13 : column-plot
+# The original `plot` command uses the last two columns as x and y value,
+# and all columns as plot series. This command is column oriented, i.e. it uses
+# the first column as x value and all remaining columns as data series:
+# $ SELECT x, min, avg, max FROM data ORDER BY 1;
+#    x   min   avg   max
+# -------------------------
+#    0     1     2     5
+#    1     1     2     5
+#    2     1     3    10
+#    3     2     4    15
+# will plot three lines, 'min', 'avg', and 'max'.
 function plot() {
+    # $MODE is set to:
+    #   plot  : 2D plot
+    #   cplot : column 2D plot
+    #   splot : 3D plot
+    #   hist  : histogram
     if [ ! -s $TMPFILE ]; then
 	echo 'Please start with executing a query that can be plotted.'
 	echo
@@ -427,6 +458,10 @@ function plot() {
 	XCOL=`expr $NUMCOL - 2`
 	YCOL=`expr $NUMCOL - 1`
 	ZCOL=$NUMCOL
+    elif [[ $MODE = cplot ]]; then
+        TCOL=''         # marker, that this uses column mode
+        XCOL=1          # first column: x
+        YCOL=$NUMCOL    # number of columns, data series is {2..$YCOL}
     else
 	TCOL=`expr $NUMCOL - 2`
 	XCOL=`expr $NUMCOL - 1`
@@ -521,11 +556,16 @@ function plot() {
 		AWK='{print $0}'
     fi
 
-    if [ $TCOL -gt 0 ]; then
+    if [[ -z $TCOL ]]; then
+        # TCOL empty (column mode)
+		DATA_LIST=`head -n1 $DATFILE | cut -d: -f2-$TCOL | tr ' ' '§' | tr ':' "\n" | uniq`
+    elif [ $TCOL -gt 0 ]; then
 		DATA_LIST=`tail -n+2 $DATFILE | cut -d: -f1-$TCOL | tr ' ' '§'  | uniq`
     else
 		DATA_LIST='-'
     fi
+    #echo "DATA_LIST='$DATA_LIST'"
+
     FIRST=0
     for DATA in $DATA_LIST; do
 		if [ $FIRST == 0 ]; then
@@ -537,8 +577,11 @@ function plot() {
 		echo -n "'-' " >> $GPFILE
 		if [ "$WITH" == "with histogram" ]; then
 		    echo -n "using 2:xtic(1) " >> $GPFILE
+                fi
+                if [[ $MODE = cplot ]]; then
+                    echo -n "using 1:$(( FIRST +2 ))" >> $GPFILE
 		fi
-		if [ $TCOL -gt 0 ]; then
+		if [[ -z $TCOL || $TCOL -gt 0 ]]; then
 		    echo -n " title '$DATA'" >> $GPFILE
 		fi
 		echo -n " $WITH" >> $GPFILE
@@ -548,19 +591,24 @@ function plot() {
     echo >> $GPFILE
     ###OLDX=''
     for DATA in $DATA_LIST; do
-	DATA=`echo "$DATA" | tr '§' ' ' `
-	if [ "$DATA" == '-' ]; then
-	    DATA='.*'
-	else
-	    DATA="^$DATA:"
-	fi
+        if [[ $MODE != cplot ]]; then
+            DATA=`echo "$DATA" | tr '§' ' ' `
+            if [ "$DATA" == '-' ]; then
+                DATA='.*'
+            else
+                DATA="^$DATA:"
+            fi
 
-    DATA=${DATA/\(/\\\(}        # FIX: mask '(' and ')' with a \ for following egrep
-    DATA=${DATA/\)/\\\)}
-    #echo DATA=$DATA
+        DATA=${DATA/\(/\\\(}        # FIX: mask '(' and ')' with a \ for following egrep
+        DATA=${DATA/\)/\\\)}
+        #echo DATA=$DATA
 
-	tail -n+2 $DATFILE | egrep "$DATA" | cut -d: -f$XCOL- | tr ':' '\t'| awk "$AWK" >> $GPFILE
-	echo 'e' >> $GPFILE
+            tail -n+2 $DATFILE | egrep "$DATA" | cut -d: -f$XCOL- | tr ':' '\t'| awk "$AWK" >> $GPFILE
+            echo 'e' >> $GPFILE
+        else
+            tail -n+2 $DATFILE | tr ':' '\t'  >> $GPFILE
+            echo 'e' >> $GPFILE
+        fi
     done
     
     if [ -z "$PARAMS" ]; then
@@ -674,6 +722,9 @@ while true; do
 	    ;;
 	'plot')
 	    MODE=plot plot
+	    ;;
+	'cplot')
+	    MODE=cplot plot
 	    ;;
 	'splot')
 	    MODE=splot plot
