@@ -153,6 +153,8 @@ function print_key() {
         #extend KEY with _ (like often used in file names)
         if [[ $KEY =~ ([A-Za-z]*)([0-9]{4})([A-Za-z]*) ]]; then
             KEY2=${BASH_REMATCH[1]}_${BASH_REMATCH[2]}_${BASH_REMATCH[3]}
+        else
+            KEY2=ZZZ
         fi
 
         #echo "begin filesearch '${KEY}.pdf' '${KEY2}.pdf'"
