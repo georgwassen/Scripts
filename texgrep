@@ -71,5 +71,5 @@ fi
 echo "PARAM_SEARCHTERM='$PARAM_SEARCHTERM'"
 echo "PARAM_CONTEXT='$PARAM_CONTEXT'"
 
-egrep -n --color=auto $PARAM_CONTEXT "$PARAM_SEARCHTERM" *.tex
+egrep -ni --color=auto $PARAM_CONTEXT "$PARAM_SEARCHTERM" *.tex
 
