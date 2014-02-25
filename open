@@ -28,9 +28,11 @@
 #===============================================================
 
 if [[ $# -eq 1 ]]; then
-    FILE=$1
     # exactly one parameter: must be the file name
-    if [[ ! -r $FILE ]]; then
+    FILE=$1
+    if [[ $FILE =~ ^http ]]; then
+        echo URL
+    elif [[ ! -r $FILE ]]; then
         # file does not exist
 
         # find matching files, grep only .PDF
