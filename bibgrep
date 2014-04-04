@@ -256,6 +256,8 @@ if [[ $PARAM_LATEX -gt 0 ]]; then
     pdflatex tmp
     biber tmp
     pdflatex tmp
-    okular tmp.pdf &
+    mv tmp.pdf t.pdf
+    okular t.pdf &
+    rm tmp.*
 fi
 
