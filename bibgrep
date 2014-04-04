@@ -212,7 +212,7 @@ if [[ "$PARAM_EDIT" ]]; then
     $PARAM_EDIT
 fi
 
-if [[ $PARAM_LATEX ]]; then
+if [[ $PARAM_LATEX -gt 0 ]]; then
     echo '\documentclass[a4]{scrartcl}' > tmp.tex
     echo '\usepackage[%' >> tmp.tex
     echo '  backend=biber,' >> tmp.tex
