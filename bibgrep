@@ -218,6 +218,10 @@ if [[ $PARAM_LATEX -gt 0 ]]; then
     echo '  backend=biber,' >> tmp.tex
     echo '  %style=numeric,' >> tmp.tex
     echo '  style=alphabetic,' >> tmp.tex
+    echo '  maxnames=5,' >> tmp.tex
+    echo '  minnames=5,' >> tmp.tex
+    echo '  maxcitenames=2,' >> tmp.tex
+    echo '  mincitenames=1,' >> tmp.tex
     echo '  ]{biblatex}' >> tmp.tex
     echo '' >> tmp.tex
     echo '% http://tex.stackexchange.com/questions/5660/redundancy-in-bib-file-conditionally-suppress-url-if-same-as-doi' >> tmp.tex
@@ -250,7 +254,7 @@ if [[ $PARAM_LATEX -gt 0 ]]; then
     #echo '\addbibresource{../../bib/misc.bib}' >> tmp.tex
     #echo '\addbibresource{../../bib/standards.bib}' >> tmp.tex
     echo '\begin{document}' >> tmp.tex
-    echo 'Citing \cite{'$KEY'}.' >> tmp.tex
+    echo '\Citeauthor{'$KEY'} citing \cite{'$KEY'}.' >> tmp.tex
     echo '\printbibliography' >> tmp.tex
     echo '\end{document}' >> tmp.tex
     pdflatex tmp
