@@ -45,6 +45,7 @@ alias vim='vim -p'      # always use -p (open multiple files in tabs instead of 
 alias gvim='gvim -p'    # dito for gvim
 alias m='make'          # short for make
 alias g='git'           # short for git
+alias gka='gitk --all &'  # short for gitk --all
 alias o=open            # short for open
 
 # grep: use color
