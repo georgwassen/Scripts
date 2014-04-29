@@ -163,7 +163,7 @@ function print_key() {
         fi
 
         #echo "begin filesearch '${KEY}.pdf' '${KEY2}.pdf'"
-        find "$PARAM_FILESEARCH" \( -name "${KEY}*" -or -name "${KEY2}*" \) -printf "\033[1;37m%p\033[0m\n"
+        find "$PARAM_FILESEARCH" \( -name "${KEY}*" -or -name "${KEY2}*" \) -printf "\033[1;37m%p\033[0m (%k kB)\n"
         #echo "end filesearch"
 
         if [[ $PARAM_OPEN -eq 1 ]]; then
