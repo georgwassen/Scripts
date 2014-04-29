@@ -214,6 +214,7 @@ fi
 
 if [[ $PARAM_LATEX -gt 0 ]]; then
     echo '\documentclass[a4]{scrartcl}' > tmp.tex
+    echo '\usepackage[super]{nth}' >> tmp.tex
     echo '\usepackage[%' >> tmp.tex
     echo '  backend=biber,' >> tmp.tex
     echo '  %style=numeric,' >> tmp.tex
