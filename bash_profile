@@ -146,7 +146,7 @@ fi
 #
 # settings only for LfBS account (domain of hostname is lfbs)
 #
-if [ "$(/bin/hostname | cut -d. -f2-)" == lfbs.rwth-aachen.de ]; then
+if [ "$(/bin/hostname -f | cut -d. -f2-)" == lfbs.rwth-aachen.de ]; then
 
     #
     # settings only for poodoo (my own desktop)
