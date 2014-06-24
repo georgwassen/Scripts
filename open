@@ -31,7 +31,20 @@ if [[ $# -eq 1 ]]; then
     # exactly one parameter: must be the file name
     FILE=$1
     if [[ $FILE =~ ^http ]]; then
+        # TODO : open URL
         echo URL
+    elif [[ $FILE =~ \.md$ ]]; then
+        # Markdown: convert to html and open in browser
+        MD=$(which markdown_py)
+        if [[ ! -x $MD ]]; then
+            echo "sorry, no Markdown converter to pre-process $FILE"
+            echo "install markdown_py"
+            cnf markdown_py
+            exit
+        fi
+        TMPFILE=$(mktemp /tmp/XXXXXXXX.html)
+        $MD $FILE > $TMPFILE
+        FILE=$TMPFILE
     elif [[ ! -r $FILE ]]; then
         # file does not exist
 
