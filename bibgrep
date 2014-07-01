@@ -223,6 +223,9 @@ if [[ $PARAM_LATEX -gt 0 ]]; then
     echo '  minnames=5,' >> tmp.tex
     echo '  maxcitenames=2,' >> tmp.tex
     echo '  mincitenames=1,' >> tmp.tex
+    echo '  alldates=comp,' >> tmp.tex
+    echo '  datezeros=false,' >> tmp.tex
+    echo '  dateabbrev=true,' >> tmp.tex
     echo '  ]{biblatex}' >> tmp.tex
     echo '' >> tmp.tex
     echo '% http://tex.stackexchange.com/questions/5660/redundancy-in-bib-file-conditionally-suppress-url-if-same-as-doi' >> tmp.tex
