@@ -78,7 +78,11 @@ function mkcd () {
 # ported to bash by me using xargs
 #   zsh's -e${^*} expands $*="a b c" to -ea -eb -ec
 function hl () { 
-    egrep --color=always -e '' $(echo $* | xargs -n1 printf "-e%s "); 
+    if [[ $1 = '-i' ]]; then
+        ARGS='--ignore-case'
+        shift
+    fi
+    egrep $ARGS --color=always -e '' $(echo $* | xargs -n1 printf "-e%s "); 
 }
 
 # grep output of ps (without grep itself)

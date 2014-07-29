@@ -140,7 +140,7 @@ function print_key() {
 
     if [[ $PARAM_QUIET -ne 1 ]]; then
 
-        sed -n $POS',/^}$/p' $FILE | egrep --color=always -e '' -e $PARAM_TERM
+        sed -n $POS',/^}$/p' $FILE | egrep --ignore-case --color=always -e '' -e $PARAM_TERM
         # sed: search from position (line number) up to the next line containing only /}/
         # (my bib files are usually formatted accordingly)
         # egrep: used to highlight the search term
@@ -184,6 +184,7 @@ function print_key() {
 }
 
 if [[ $PARAM_FULLTEXT -eq 1 ]]; then
+    shopt -s nocasematch
     for FILE in $FILES; do
         POS=0
         while read LINE; do
@@ -203,7 +204,7 @@ if [[ $PARAM_FULLTEXT -eq 1 ]]; then
 else
     while read LINE; do
         print_key $LINE
-    done < <(echo $FILES |xargs egrep -n "@.*{.*$PARAM_TERM.*,")
+    done < <(echo $FILES |xargs egrep --ignore-case -n "@.*{.*$PARAM_TERM.*,")
 fi
 
 # open in gvim (if that parameter was given)
