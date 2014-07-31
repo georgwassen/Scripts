@@ -85,6 +85,12 @@ function hl () {
     egrep $ARGS --color=always -e '' $(echo $* | xargs -n1 printf "-e%s "); 
 }
 
+# pdfgrep: grep in PDF files (current dir, recursively)
+# http://stackoverflow.com/a/4643518
+function pdfgrep () {
+    find . -name '*.pdf' -exec sh -c 'pdftotext "{}" - | grep --with-filename --label="{}" --color=always "$@"' \; 2> /dev/null
+}
+
 # grep output of ps (without grep itself)
 function psgrep ()
 {
