@@ -1,0 +1,34 @@
+#!/bin/bash
+#===============================================================================
+#
+#          FILE:  idxgrep.sh
+# 
+#         USAGE:  ./idxgrep.sh 
+# 
+#   DESCRIPTION:  search \index{.*} entries in TEX files
+# 
+#       OPTIONS:  ---
+#  REQUIREMENTS:  ---
+#          BUGS:  ---
+#         NOTES:  ---
+#        AUTHOR:  Georg Wassen (georg.wassen@gmail.com), 
+#       COMPANY:  
+#       VERSION:  1.0
+#       CREATED:  31.07.2014 11:40:05 CEST
+#      REVISION:  ---
+#===============================================================================
+
+
+TERM="$@"
+
+# Regex: start with \index{
+#        then arbirary characters except '}'
+#        then the search term
+#        then again arbirary characters except '}'
+#        finally the closing '}' 
+TERM='\\index\{[^}]*'$TERM'[^}]*\}'
+
+# first egrep: search in all TEX files, use color, show filename and line numbers
+# second egrep: exclude files, where a '%' sign makes the previous match a comment
+egrep -n --color=always --ignore-case "$TERM" *.tex | egrep -iv "%.*$TERM"
+
