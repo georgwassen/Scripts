@@ -32,6 +32,7 @@ function usage() {
     echo "    -e  --edit       Open found places in gvim"
     echo "    -f  --fulltext   Do a fulltext search (not just in bib keys)"
     echo "    -h  --help       Show this help"
+    echo "    -m  --mouse      take <regex> from mouse copy buffer"
     echo "    -s  --filesearch Search for PDF file (optionally provide path)"
     echo "    -o  --open       Open PDF (implies -s)"
     echo "    -q  --quiet      Don't show full entries, only bib keys"
@@ -44,7 +45,7 @@ if [[ $# -eq 0 ]]; then
     exit
 fi
 
-ARGS=$(getopt -o 'efhls::oq' -l 'help,edit,fulltext,filesearch,latex,open::,quiet' -- "$@")   # parse parameters and store normalized string in $ARGS
+ARGS=$(getopt -o 'efhlms::oq' -l 'help,edit,fulltext,filesearch,latex,mouse,open::,quiet' -- "$@")   # parse parameters and store normalized string in $ARGS
 eval set -- "$ARGS";                           # set parameters to preprocessed string $ARGS
 
 PARAM_FULLTEXT=0
@@ -70,6 +71,9 @@ while [[ $# -gt 0 ]]; do
             ;;
         -l|--latex)
             PARAM_LATEX=1
+            ;;
+        -m|--mouse)
+            PARAM_TERM=$(xsel)
             ;;
         -o|--open)
             PARAM_OPEN=1
