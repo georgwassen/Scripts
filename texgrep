@@ -29,11 +29,12 @@ function usage() {
     echo "  Parameters: "
     echo "    -cN --context=N        Show N lines of context around matches (default: 2)"
     echo "    -h  --help             Show this help"
+    echo "    -i  --ignore-case      search case-insensitive"
     echo "    -x  --exclude-comments Exclude searching in commented (deactivated) parts"
     echo
 }
 
-ARGS=$(getopt -o 'c::hx' -l 'context::,help,exclude-comments' -- "$@")   # parse parameters and store normalized string in $ARGS
+ARGS=$(getopt -o 'c::hix' -l 'context::,help,ignore-case,exclude-comments' -- "$@")   # parse parameters and store normalized string in $ARGS
 eval set -- "$ARGS";                           # set parameters to preprocessed string $ARGS
 
 PARAM_SEARCHTERM=''
@@ -53,6 +54,9 @@ while [[ $# -gt 0 ]]; do
                 PARAM_CONTEXT="-$2"
             fi
             shift
+            ;;
+        -i|--ignore-case)
+            PARAM_IGNORECASE="-i"
             ;;
         -x|--exclude-comments)
             PARAM_PREFIX='^[^%]*'
@@ -82,5 +86,5 @@ echo "PARAM_SEARCHTERM='$PARAM_SEARCHTERM'"
 #             using $PREFIX (if set) to exclude commented lines
 #             color filename and line number, but unset coloring of match 
 # second grep: color matches to $SEARCHTERM (without $PREFIX)
-GREP_COLORS='mt=' egrep --color=always -ni $PARAM_CONTEXT "$PARAM_PREFIX$PARAM_SEARCHTERM" *.tex | egrep --color=always -e '' -e $PARAM_SEARCHTERM
+GREP_COLORS='mt=' egrep --color=always -n $PARAM_IGNORECASE $PARAM_CONTEXT "$PARAM_PREFIX$PARAM_SEARCHTERM" *.tex | egrep --color=always $PARAM_IGNORECASE -e '' -e $PARAM_SEARCHTERM
 
