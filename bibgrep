@@ -145,12 +145,13 @@ function print_key() {
 
     if [[ $PARAM_QUIET -ne 1 ]]; then
 
-        sed -n $POS',/^}$/p' $FILE | egrep --ignore-case --color=always -e '' -e $PARAM_TERM
+        sed -n $POS',/^}$/p' $FILE | egrep --ignore-case --color=always -e '' -e $PARAM_TERM \
+            | GREP_COLORS='mt=01;32' egrep --color=always --ignore-case -e '' -e'crossref[^}]*}' \
+            | GREP_COLORS='mt=01;36' egrep --color=always --ignore-case -e '' -e'title[^}]*}}' 
         # sed: search from position (line number) up to the next line containing only /}/
         # (my bib files are usually formatted accordingly)
         # egrep: used to highlight the search term
         # (first -e: show every line, second -e: highligh $PARAM_TERM)
-
     fi
 
 
