@@ -174,7 +174,7 @@ function print_key() {
     fi
 
     if [[ "$PARAM_FILESEARCH" ]]; then
-        if [[ -r $PARAM_FILESEARCH/$BIB_FILE ]]; then
+        if [[ $BIB_FILE && -r $PARAM_FILESEARCH/$BIB_FILE ]]; then
             find "$PARAM_FILESEARCH/$(dirname $BIB_FILE)" -name $(basename $BIB_FILE) -printf "FILE: \033[1;37m%p\033[0m (%k kB)\n"
         else
             #extend KEY with _ (like often used in file names)
