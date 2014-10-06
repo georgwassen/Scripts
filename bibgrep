@@ -156,10 +156,14 @@ function print_key() {
 
     # store infos about last displayed bib entry:
     BIB_FILE=''
+    BIB_CROSSREF=''
     while read LINE; do
         if [[ $LINE =~ file.*=.*\{([^}]*)} ]]; then
             #echo "FOUND FILE: '${BASH_REMATCH[1]}'"
             BIB_FILE="${BASH_REMATCH[1]}"
+        elif [[ $LINE =~ crossref*=.*\{([^}]*)} ]]; then
+            #echo "FOUND FILE: '${BASH_REMATCH[1]}'"
+            BIB_CROSSREF="${BASH_REMATCH[1]}"
         fi
     done < <(sed -n $POS',/^}$/p' $FILE )
 
@@ -192,12 +196,15 @@ function print_key() {
                     echo "No matching file found in '$PARAM_FILESEARCH'"
                 elif [[ $CNT -eq 1 ]]; then
                     open $FILES
-                else 
+                else
                     echo "Found more than one file, opening first one"
                     open $(echo "$FILES" | head -n1)
                 fi
             fi
         fi
+    fi
+    if [[ $BIB_CROSSREF ]]; then
+        $0 $BIB_CROSSREF
     fi
 
 }
