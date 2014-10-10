@@ -36,6 +36,7 @@ function usage() {
     echo "    -s  --filesearch Search for PDF file (optionally provide path)"
     echo "    -o  --open       Open PDF (implies -s)"
     echo "    -q  --quiet      Don't show full entries, only bib keys"
+    echo "    -r  --recursive  Display crossref'd entries recursively"
     echo "    -l  --latex      Generate LaTeX PDF of Bib entry"
     echo
 }
@@ -45,7 +46,7 @@ if [[ $# -eq 0 ]]; then
     exit
 fi
 
-ARGS=$(getopt -o 'efhlms::oq' -l 'help,edit,fulltext,filesearch,latex,mouse,open::,quiet' -- "$@")   # parse parameters and store normalized string in $ARGS
+ARGS=$(getopt -o 'efhlms::oqr' -l 'help,edit,fulltext,filesearch,latex,mouse,open::,quiet,recursive' -- "$@")   # parse parameters and store normalized string in $ARGS
 eval set -- "$ARGS";                           # set parameters to preprocessed string $ARGS
 
 PARAM_FULLTEXT=0
@@ -55,6 +56,7 @@ PARAM_LATEX=0
 FILESEARCH_DEFAULTPATH=$HOME/checkout/Dokumentation
 PARAM_OPEN=0
 PARAM_QUIET=0
+PARAM_RECURSIVE=0
 
 while [[ $# -gt 0 ]]; do
     #echo "1='$1'"
@@ -83,6 +85,9 @@ while [[ $# -gt 0 ]]; do
             ;;
         -q|--quiet)
             PARAM_QUIET=1
+            ;;
+        -r|--recursive)
+            PARAM_RECURSIVE=1
             ;;
         -s|--filesearch)
             if [[ $2 ]]; then
@@ -207,7 +212,7 @@ function print_key() {
             fi
         fi
     fi
-    if [[ $BIB_CROSSREF ]]; then
+    if [[ $PARAM_RECURSIVE -ge 1 && $BIB_CROSSREF ]]; then
         $0 $BIB_CROSSREF
     fi
 
