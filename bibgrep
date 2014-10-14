@@ -118,7 +118,14 @@ if [[ $(ls *.bib 2> /dev/null | wc -l) -eq 0 ]]; then
     FILES=$(sed -n 's/\\addbibresource{\([^}]\+\)}/\1/p' *.tex)
     # TODO : if using BibTeX, use other regex to extract BIB files...
 else
-    FILES="journals.bib proceedings.bib $(ls *.bib | grep -v journals.bib | grep -v proceedings.bib)"
+    FILES=''
+    if [[ -r journals.bib ]]; then
+        FILES="$FILES journals.bib"
+    fi
+    if [[ -r proceedings.bib ]]; then
+        FILES="$FILES proceedings.bib"
+    fi
+    FILES="$FILES $(ls *.bib | grep -v journals.bib | grep -v proceedings.bib)"
 fi
 #echo "FILES='$FILES'"
 
