@@ -246,7 +246,7 @@ if [[ $PARAM_FULLTEXT -eq 1 ]]; then
 else
     while read LINE; do
         print_key $LINE
-    done < <(echo $FILES |xargs egrep --ignore-case -n "@.*{.*$PARAM_TERM.*,")
+    done < <(echo $FILES |xargs egrep --with-filename --ignore-case -n "@.*{.*$PARAM_TERM.*,")
 fi
 
 # open in gvim (if that parameter was given)
