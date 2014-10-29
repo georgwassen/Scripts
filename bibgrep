@@ -38,6 +38,7 @@ function usage() {
     echo "    -q  --quiet      Don't show full entries, only bib keys"
     echo "    -r  --recursive  Display crossref'd entries recursively"
     echo "    -l  --latex      Generate LaTeX PDF of Bib entry"
+    echo "    -t  --type=REGEX Bib entry type matches given Regex"
     echo
 }
 
@@ -46,7 +47,7 @@ if [[ $# -eq 0 ]]; then
     exit
 fi
 
-ARGS=$(getopt -o 'efhlms::oqr' -l 'help,edit,fulltext,filesearch,latex,mouse,open::,quiet,recursive' -- "$@")   # parse parameters and store normalized string in $ARGS
+ARGS=$(getopt -o 'efhlms::oqrt:' -l 'help,edit,fulltext,filesearch,latex,mouse,open::,quiet,recursive,type:' -- "$@")   # parse parameters and store normalized string in $ARGS
 eval set -- "$ARGS";                           # set parameters to preprocessed string $ARGS
 
 PARAM_FULLTEXT=0
@@ -57,6 +58,7 @@ FILESEARCH_DEFAULTPATH=$HOME/checkout/Dokumentation
 PARAM_OPEN=0
 PARAM_QUIET=0
 PARAM_RECURSIVE=0
+PARAM_TYPE='.*'
 
 while [[ $# -gt 0 ]]; do
     #echo "1='$1'"
@@ -94,6 +96,11 @@ while [[ $# -gt 0 ]]; do
                 PARAM_FILESEARCH=$2
             else
                 PARAM_FILESEARCH=$FILESEARCH_DEFAULTPATH
+            fi
+            ;;
+        -t|--type)
+            if [[ $2 ]]; then
+                PARAM_TYPE=$2
             fi
             ;;
         --)
@@ -246,7 +253,7 @@ if [[ $PARAM_FULLTEXT -eq 1 ]]; then
 else
     while read LINE; do
         print_key $LINE
-    done < <(echo $FILES |xargs egrep --with-filename --ignore-case -n "@.*{.*$PARAM_TERM.*,")
+    done < <(echo $FILES |xargs egrep --with-filename --ignore-case -n "@$PARAM_TYPE{.*$PARAM_TERM.*,")
 fi
 
 # open in gvim (if that parameter was given)
