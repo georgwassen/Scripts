@@ -153,6 +153,18 @@ else
     export PS1=$PROMPT_GREEN'\u@\h'$PROMPT_BLUE' \w'${SCREEN}$PROMPT_BLUE' \$ '$PROMPT_RESET
 fi
 
+if [[ -e /usr/local/packages/pkgtools-2.1/bin/usepkg ]]; then
+    # usepkg (/usr/local/packages)
+    function usepkg () { eval `/usr/local/packages/pkgtools-2.1/bin/usepkg  $*`; }
+
+    if [[ -e /usr/local/packages/texlive-current ]]; then
+        # additional LaTeX files installed locally
+        #export TEXINPUTS=/home/wassen/.tex:
+        #export INDEXSTYLE=/home/wassen/.tex:
+        usepkg texlive-current
+    fi
+fi
+
 #
 # settings only for LfBS account (domain of hostname is lfbs)
 #
@@ -166,8 +178,6 @@ if [ "$(/bin/hostname -f | cut -d. -f2-)" == lfbs.rwth-aachen.de ]; then
         export CDPATH=:~/checkout/BSPR/block1:~/checkout/BSPR/block2:~/checkout/BSPR/block3:~/checkout/BSPR/block4
     fi
 
-    # usepkg (/usr/local/packages)
-    function usepkg () { eval `/usr/local/packages/pkgtools-2.1/bin/usepkg  $*`; }
 
     # activate for NMPI:
     #export PATH=/work/wassen/nmpi-1.2/bin:$PATH
@@ -180,10 +190,6 @@ if [ "$(/bin/hostname -f | cut -d. -f2-)" == lfbs.rwth-aachen.de ]; then
     #usepkg -q inkscape                     # not needed, it is installed on most machines
     #export MANPATH=/usr/share/man:$MANPATH
 
-    # additional LaTeX files installed locally
-    #export TEXINPUTS=/home/wassen/.tex:
-    #export INDEXSTYLE=/home/wassen/.tex:
-    usepkg texlive-current
 
     # for AVR programmer
     export PROGRAMMER_PORT=usb
