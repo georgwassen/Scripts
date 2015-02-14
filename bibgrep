@@ -47,7 +47,13 @@ if [[ $# -eq 0 ]]; then
     exit
 fi
 
-ARGS=$(getopt -o 'efhlms::oqrt:' -l 'help,edit,fulltext,filesearch,latex,mouse,open::,quiet,recursive,type:' -- "$@")   # parse parameters and store normalized string in $ARGS
+# read defaults
+if [[ -r ~/.bibgreprc ]]; then
+    source ~/.bibgreprc
+fi
+
+# parse parameters and store normalized string in $ARGS
+ARGS=$(getopt -o 'efhlms::oqrt:' -l 'help,edit,fulltext,filesearch,latex,mouse,open::,quiet,recursive,type:' -- "$@")
 eval set -- "$ARGS";                           # set parameters to preprocessed string $ARGS
 
 PARAM_FULLTEXT=0
@@ -124,14 +130,22 @@ if [[ $(ls *.bib 2> /dev/null | wc -l) -eq 0 ]]; then
     # find bib files used by BibLaTeX
     FILES=$(sed -n 's/\\addbibresource{\([^}]\+\)}/\1/p' *.tex)
     # TODO : if using BibTeX, use other regex to extract BIB files...
+    
+    # fall back to default path as defined in ~/.bibgreprc
+    if [[ -z $FILES ]]; then
+        FILES=$DEFAULT_BIB_PATH/*.bib
+    fi
 else
+    # bib files in current directory
     FILES=''
+    # start by adding journals.bib and proceedings.bib (they define strings used in others)
     if [[ -r journals.bib ]]; then
         FILES="$FILES journals.bib"
     fi
     if [[ -r proceedings.bib ]]; then
         FILES="$FILES proceedings.bib"
     fi
+    # now append all files except the two already mentioned
     FILES="$FILES $(ls *.bib | grep -v journals.bib | grep -v proceedings.bib)"
 fi
 #echo "FILES='$FILES'"
