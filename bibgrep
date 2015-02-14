@@ -39,6 +39,8 @@ function usage() {
     echo "    -r  --recursive  Display crossref'd entries recursively"
     echo "    -l  --latex      Generate LaTeX PDF of Bib entry"
     echo "    -t  --type=REGEX Bib entry type matches given Regex"
+    echo "    -p  --printfields=a,b,c"
+    echo "                     comma-separated fieldnames to restrict output"
     echo
 }
 
@@ -53,7 +55,7 @@ if [[ -r ~/.bibgreprc ]]; then
 fi
 
 # parse parameters and store normalized string in $ARGS
-ARGS=$(getopt -o 'efhlms::oqrt:' -l 'help,edit,fulltext,filesearch,latex,mouse,open::,quiet,recursive,type:' -- "$@")
+ARGS=$(getopt -o 'efhlms::o::p:qrt:' -l 'help,edit,fulltext,filesearch::,latex,mouse,open::,printfields:,quiet,recursive,type:' -- "$@")
 eval set -- "$ARGS";                           # set parameters to preprocessed string $ARGS
 
 PARAM_FULLTEXT=0
@@ -65,6 +67,7 @@ PARAM_OPEN=0
 PARAM_QUIET=0
 PARAM_RECURSIVE=0
 PARAM_TYPE='.*'
+PARAM_PRINTFIELDS='.*'
 
 while [[ $# -gt 0 ]]; do
     #echo "1='$1'"
@@ -100,6 +103,7 @@ while [[ $# -gt 0 ]]; do
         -s|--filesearch)
             if [[ $2 ]]; then
                 PARAM_FILESEARCH=$2
+                shift
             else
                 PARAM_FILESEARCH=$FILESEARCH_DEFAULTPATH
             fi
@@ -107,6 +111,17 @@ while [[ $# -gt 0 ]]; do
         -t|--type)
             if [[ $2 ]]; then
                 PARAM_TYPE=$2
+                shift
+            fi
+            ;;
+        -p|--printfields)
+            if [[ $2 ]]; then
+                PARAM_PRINTFIELDS='^@.*|^}$'
+                IFS=','
+                for P in $2; do
+                    PARAM_PRINTFIELDS=$PARAM_PRINTFIELDS"|\ *$P=.*"
+                done
+                shift
             fi
             ;;
         --)
@@ -119,6 +134,8 @@ while [[ $# -gt 0 ]]; do
     esac
     shift
 done
+
+echo PARAM_PRINTFIELDS="'$PARAM_PRINTFIELDS'"
 
 #echo "PARAM_TERM='$PARAM_TERM'"
 #echo "PARAM_OPEN='$PARAM_OPEN'"
@@ -178,7 +195,8 @@ function print_key() {
 
     if [[ $PARAM_QUIET -ne 1 ]]; then
 
-        sed -n $POS',/^}$/p' $FILE | egrep --ignore-case --color=always -e '' -e $PARAM_TERM \
+        sed -n $POS',/^}$/p' $FILE | egrep "$PARAM_PRINTFIELDS" \
+            | egrep --ignore-case --color=always -e '' -e $PARAM_TERM \
             | GREP_COLORS='mt=01;32' egrep --color=always --ignore-case -e '' -e'crossref[^}]*}' \
             | GREP_COLORS='mt=01;36' egrep --color=always --ignore-case -e '' -e'title[^}]*}}' 
         # sed: search from position (line number) up to the next line containing only /}/
