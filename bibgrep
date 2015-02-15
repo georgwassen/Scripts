@@ -135,8 +135,7 @@ while [[ $# -gt 0 ]]; do
     shift
 done
 
-echo PARAM_PRINTFIELDS="'$PARAM_PRINTFIELDS'"
-
+#echo "PARAM_PRINTFIELDS='$PARAM_PRINTFIELDS'"
 #echo "PARAM_TERM='$PARAM_TERM'"
 #echo "PARAM_OPEN='$PARAM_OPEN'"
 #echo "PARAM_FILESEARCH='$PARAM_FILESEARCH'"
@@ -145,8 +144,10 @@ echo PARAM_PRINTFIELDS="'$PARAM_PRINTFIELDS'"
 if [[ $(ls *.bib 2> /dev/null | wc -l) -eq 0 ]]; then 
     # no *.bib files in $PWD
     # find bib files used by BibLaTeX
-    FILES=$(sed -n 's/\\addbibresource{\([^}]\+\)}/\1/p' *.tex)
-    # TODO : if using BibTeX, use other regex to extract BIB files...
+    if [[ -r *.tex ]]; then
+        FILES=$(sed -n 's/\\addbibresource{\([^}]\+\)}/\1/p' *.tex)
+        # TODO : if using BibTeX, use other regex to extract BIB files...
+    fi
     
     # fall back to default path as defined in ~/.bibgreprc
     if [[ -z $FILES ]]; then
@@ -187,7 +188,9 @@ function print_key() {
         #echo "KEY='$KEY'"
 
         # put it in the clipboard buffer
-        echo -n "$KEY" | xsel -b
+        if [[ -x xsel ]]; then
+            echo -n "$KEY" | xsel -b
+        fi
     fi
 
     # write file and line and bibkey
