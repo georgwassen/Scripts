@@ -1,0 +1,73 @@
+#!/bin/bash
+
+# clean up vim recovery files in the current directory
+
+ARGS=$(getopt -o dhrv --long dry-run,help,recursive,verbose -n $0 -- "$@")
+
+if [[ $? -ne 0 ]]; then echo "Terminating..." >&2; exit 1; fi
+
+VERBOSE=/bin/true
+NONRECURSIVE='-maxdepth 1'
+
+eval set -- "$ARGS"
+while true; do
+    case "$1" in
+        -d|--dry-run)
+            DRY="echo EXEC "
+            ;;
+        -h|--help)
+            echo "vimr - vim recovery help"
+            echo
+            echo "Searches vim recovery files, starts vim recovery and deletes them."
+            echo "Parameters:"
+            echo "  -d   --dry-run     Print what would be done, don't touch any files."
+            echo "  -h   --help        Print help."
+            echo "  -r   --recursive   Descent recursively into sub directories"
+            echo "  -v   --verbose     Be verbose"
+            exit
+            ;;
+        -r|--recursive)
+            NONRECURSIVE=''
+            ;;
+        -v|--verbose)
+            VERBOSE=echo
+            ;;
+        --)
+            shift
+            break
+            ;;
+        *)
+            echo "Unrecognized argument: '$1'" >&2
+            ;;
+    esac
+    shift
+done
+
+function process_file()
+{
+    local FILE="$1"
+    $VERBOSE processing file "$FILE"
+    [[ "$FILE" =~ (.*/).(.*).sw. ]] || echo ERROR
+    ORIG_FILE=${BASH_REMATCH[1]}${BASH_REMATCH[2]}
+    $VERBOSE "orig file: '$ORIG_FILE'"
+    TMP_FILE=$(mktemp -p .)
+    $VERBOSE "temp file: '$TMP_FILE'"
+    LANG=C vim -u /dev/null -r "$ORIG_FILE" -c ":saveas! $TMP_FILE | q!"
+    RES=$?
+    $VERBOSE "RES: $RES"
+    DIFFCNT=$(diff $TMP_FILE $ORIG_FILE | wc -l)
+    echo -n "Recover $ORIG_FILE: "
+    if [[ $DIFFCNT -eq 0 ]]; then
+        echo -n "content equal."
+        $VERBOSE "deleting '$FILE'"
+        $DRY rm $FILE
+    else
+        echo "ATTENTION: file was changed!"
+    fi
+    rm $TMP_FILE
+}
+
+for F in $(find . $NONRECURSIVE -name '.*.sw?'); do
+    process_file $F
+done
+
